@@ -7,19 +7,13 @@ using System.Net.Http.Headers;
 
 public partial class DigitalOceanClient : Runtime 
 {
-    public DigitalOceanClient(string apikey) : this(GetHttpClient(apikey)) {}
+    public DigitalOceanClient(string apikey) : this(ConfigureHttpClient(apikey)) {}
        
-    protected static HttpClient GetHttpClient(string apikey)
+    protected static HttpClient ConfigureHttpClient(string apikey)
     {
-        // create and configure HttpClient
-        var httpClient = new HttpClient
-        {
-            BaseAddress = new Uri("https://api.digitalocean.com/v2/")
-        };
-
+        var httpClient = new HttpClient();       
         // set the Authorization: Bearer <token> header
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apikey);
-
         return httpClient;        
     }
 }

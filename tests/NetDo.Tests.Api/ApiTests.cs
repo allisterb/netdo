@@ -1,6 +1,6 @@
-﻿using DigitalOcean.Api;
+﻿namespace DigitalOcean.Tests.Api;
 
-namespace DigitalOcean.Tests.Api;
+using DigitalOcean.Api;
 
 public class ApiTests : TestsRuntime
 {

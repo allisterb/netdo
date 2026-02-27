@@ -11,6 +11,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDo.Tests.Api", "..\tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDo.Runtime", "NetDo.Runtime\NetDo.Runtime.csproj", "{285185E7-CCC9-E51D-5342-5A038382E282}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Base", "Base", "{F9BAE28E-746C-4F34-ACEC-BE5581ECA4E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDo.Gradient", "NetDo.Gradient\NetDo.Gradient.csproj", "{7F3514FE-4152-42ED-9859-FB57149AC365}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{7231A311-EA99-40DB-9991-52779CEF9B00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +35,19 @@ Global
 		{285185E7-CCC9-E51D-5342-5A038382E282}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{285185E7-CCC9-E51D-5342-5A038382E282}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{285185E7-CCC9-E51D-5342-5A038382E282}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F3514FE-4152-42ED-9859-FB57149AC365}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F3514FE-4152-42ED-9859-FB57149AC365}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F3514FE-4152-42ED-9859-FB57149AC365}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F3514FE-4152-42ED-9859-FB57149AC365}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{0268E324-AB56-41DB-BDA1-C04FE87AF7B6} = {7231A311-EA99-40DB-9991-52779CEF9B00}
 		{843948F9-BD10-48CC-A017-E8D34C262802} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{285185E7-CCC9-E51D-5342-5A038382E282} = {F9BAE28E-746C-4F34-ACEC-BE5581ECA4E0}
+		{7F3514FE-4152-42ED-9859-FB57149AC365} = {7231A311-EA99-40DB-9991-52779CEF9B00}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8884AB54-364F-47F2-99A7-C270AF334274}
