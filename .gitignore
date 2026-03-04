@@ -419,5 +419,6 @@ FodyWeavers.xsd
 
 # Project
 **/testappsettings.json
+**/launchSettings.json
 **/*.md
 ext/
