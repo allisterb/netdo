@@ -419,3 +419,5 @@ FodyWeavers.xsd
 
 # Project
 **/testappsettings.json
+**/*.md
+ext/
