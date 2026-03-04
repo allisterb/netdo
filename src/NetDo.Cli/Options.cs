@@ -1,4 +1,4 @@
-namespace NetDo.Cli;
+namespace DigitalOcean.Cli;
 
 using System;
 using System.Collections.Generic;
@@ -47,4 +47,10 @@ public class ProjectOptions : Options
     public bool List { get; set; }
 }
 
+[Verb("workspaces", HelpText = "View and manage Digital Ocean agent workspaces.")]
+public class WorkspaceOptions : Options
+{
+    [Option("list", Required = false, HelpText = "List all workspaces.")]
+    public bool List { get; set; }
+}
 

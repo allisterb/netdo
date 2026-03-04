@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NetDo.Api\NetDo.Api.csproj" />
     <ProjectReference Include="..\NetDo.Gradient\NetDo.Gradient.csproj" />
+    <ProjectReference Include="..\NetDo.Runtime\NetDo.Runtime.csproj" />
   </ItemGroup>
 
 </Project>

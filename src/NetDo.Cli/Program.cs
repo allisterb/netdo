@@ -1,4 +1,4 @@
-namespace NetDo.Cli;
+namespace DigitalOcean.Cli;
 
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using CommandLine.Text;
 using DigitalOcean.Api;
 using Spectre.Console;
 
-internal class Program
+internal class Program : Runtime
 {
     static async Task Main(string[] args)
     {
@@ -20,32 +20,16 @@ internal class Program
             with.CaseInsensitiveEnumValues = true;
             with.HelpWriter = null;
         });
-
-        var result = parser.ParseArguments<ProjectOptions>(args);
-
+        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions>(args);
         await result.MapResult(
-            async (ProjectOptions opts) =>
-            {
-                if (opts.List)
-                {
-                    await RunProjectOptions(opts);
-                }
-                else
-                {
-                    await HandleParseError(result, Enumerable.Empty<CommandLine.Error>());
-                }
-            },
+            async (ProjectOptions opts) => await Projects(opts),
+            async (WorkspaceOptions opts) => await Workspaces(opts),            
             errs => HandleParseError(result, errs)
         );
     }
 
-    static async Task RunProjectOptions(ProjectOptions opts)
-    {
-        if (opts.Debug)
-        {
-            DigitalOceanClient.DebugEnabled = true;
-        }
-
+    static async Task Projects(ProjectOptions opts)
+    {        
         if (opts.List)
         {
             await ListProjects();
@@ -91,6 +75,56 @@ internal class Program
         }
     }
 
+    static async Task Workspaces(WorkspaceOptions options)
+    {
+        
+        if (options.List)
+        {
+           await ListWorkspaces();
+        }
+    }
+
+    static async Task ListWorkspaces()
+    {
+        try
+        {
+            var client = new DigitalOceanClient();
+            var response = await client.Genai_list_workspacesAsync();
+
+            if (response.Workspaces == null || !response.Workspaces.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]No workspaces found.[/]");
+                return;
+            }
+
+            var table = new Table();
+            table.AddColumn("Name");
+            table.AddColumn("Uuid");
+            table.AddColumn("Description");
+            table.AddColumn("Agents");
+
+            foreach (var workspace in response.Workspaces)
+            {
+                var agentsList = workspace.Agents != null 
+                    ? string.Join(", ", workspace.Agents.Select(a => $"{a.Name}({a.Uuid})"))
+                    : "";
+
+                table.AddRow(
+                    workspace.Name ?? "",
+                    workspace.Uuid ?? "",
+                    workspace.Description ?? "",
+                    agentsList
+                );
+            }
+
+            AnsiConsole.Write(table);
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.WriteException(ex);
+        }
+    }
+
     static Task HandleParseError<T>(ParserResult<T> result, IEnumerable<CommandLine.Error> errs)
     {
         var helpText = HelpText.AutoBuild(result, h =>
@@ -108,6 +142,6 @@ internal class Program
 
     static void PrintLogo()
     {
-        AnsiConsole.Write(new FigletText("NetDo"));
+        AnsiConsole.Write(new FigletText("Digital Ocean").Color(Color.Blue));
     }
 }
