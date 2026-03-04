@@ -15,22 +15,16 @@ using System.Threading.Tasks;
 public class Agent : Runtime
 {
     #region Constructors
-    public Agent(string id)
+    private Agent(ApiAgent metadata)
     {
-        Id = id;
-        _client = new DigitalOceanClient();
-    }
-
-    private Agent(ApiAgent metadata) : this(metadata.Uuid!)
-    {
-        Metadata = metadata;
+        this.metadata = metadata;
+        this._client = new DigitalOceanClient();
     }
     #endregion
 
     #region Properties
-    public string Id { get; }
+    public string Id => metadata.Uuid!;
 
-    public ApiAgent? Metadata { get; private set; }
     #endregion
 
     #region Static Methods
@@ -85,7 +79,7 @@ public class Agent : Runtime
     public async Task RefreshMetadataAsync(CancellationToken ct = default)
     {
         var response = await _client.Genai_get_agentAsync(Id, ct);
-        Metadata = response.Agent;
+        metadata = response.Agent;
     }
 
     public async Task DeleteAsync(CancellationToken ct = default)
@@ -97,7 +91,7 @@ public class Agent : Runtime
     {
         return await _client.Genai_get_agent_usageAsync(Id, start?.ToString("O"), stop?.ToString("O"), ct);
     }
-
+    /*
     public async Task<EvaluationResult> RunEvaluationAsync(
         string testCaseName,
         string datasetFilePath,
@@ -172,6 +166,7 @@ public class Agent : Runtime
         }
     }
 
+    
     private async Task<string> UploadDatasetAsync(string filePath, string datasetName, CancellationToken ct)
     {
         var fileInfo = new FileInfo(filePath);
@@ -259,7 +254,7 @@ public class Agent : Runtime
             return createResponse.Test_case_uuid!;
         }
     }
-
+    */
     private async Task<EvaluationResult> PollEvaluationRunAsync(string runUuid, CancellationToken ct)
     {
         while (true)
@@ -290,5 +285,6 @@ public class Agent : Runtime
 
     #region Fields
     protected DigitalOceanClient _client;
+    protected ApiAgent metadata;
     #endregion
 }
