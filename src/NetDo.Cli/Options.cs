@@ -52,5 +52,16 @@ public class WorkspaceOptions : Options
 {
     [Option("list", Required = false, HelpText = "List all workspaces.")]
     public bool List { get; set; }
+
+    [Option("list", Required = false, HelpText = "Create a workspace.")]
+    public string Create { get; set; } = "";
 }
 
+[Verb("models", HelpText = "View and manage Digital Ocean agent models.")]
+public class ModelOptions : Options
+{
+    [Option("list", Required = false, HelpText = "List all models.")]
+    public bool List { get; set; }
+
+    
+}
