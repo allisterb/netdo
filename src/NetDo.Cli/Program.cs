@@ -30,16 +30,17 @@ internal class Program : Runtime
             with.CaseInsensitiveEnumValues = true;
             with.HelpWriter = null;
         });
-        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions>(args);
+        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions, AgentOptions>(args);
         await result.MapResult(
-            async (ProjectOptions opts) => await Projects(opts),
-            async (WorkspaceOptions opts) => await Workspaces(opts),
-            async (ModelOptions opts) => await Models(opts),
+            async (ProjectOptions opts) => await HanldeProjectsArgs(opts),
+            async (WorkspaceOptions opts) => await HandleWorkspacesArgs(opts),
+            async (ModelOptions opts) => await HandleModelArgs(opts),
+            async (AgentOptions opts) => await HandleAgentArgs(opts),
             errs => HandleParseError(result, errs)
         );
     }
 
-    static async Task Projects(ProjectOptions opts)
+    static async Task HanldeProjectsArgs(ProjectOptions opts)
     {
         try
         {
@@ -80,7 +81,7 @@ internal class Program : Runtime
         }
     }
     
-    static async Task Workspaces(WorkspaceOptions options)
+    static async Task HandleWorkspacesArgs(WorkspaceOptions options)
     {
         try
         {
@@ -123,7 +124,7 @@ internal class Program : Runtime
         }
     }
 
-    static async Task Models(ModelOptions options)
+    static async Task HandleModelArgs(ModelOptions options)
     {
         try
         {
@@ -145,14 +146,14 @@ internal class Program : Runtime
 
                 foreach (var model in response.Models)
                 {
+                    var version = model.Version?.Major?.ToString() ?? "0" + "." + model.Version?.Minor?.ToString() ?? "0" + "." + model.Version?.Patch?.ToString() ?? "0";
                     table.AddRow(
                         model.Name ?? "",
                         model.Uuid ?? "",
-                        model.Version?.ToString() ?? "",
+                        version ?? "",
                         model.Updated_at?.ToString() ?? ""
                     );
                 }
-
                 AnsiConsole.Write(table);
             }
         }
@@ -162,7 +163,97 @@ internal class Program : Runtime
         }
     }
 
-  
+    static async Task HandleAgentArgs(AgentOptions options)
+    {
+        try
+        {
+            if (options.List)
+            {
+                var response = await client.Genai_list_agentsAsync(null, null, null);
+
+                if (response.Agents == null || !response.Agents.Any())
+                {
+                    AnsiConsole.MarkupLine("[yellow]No agents found.[/]");
+                    return;
+                }
+
+                var table = new Table();
+                table.AddColumn("Name");
+                table.AddColumn("Description");
+                table.AddColumn("Uuid");
+                table.AddColumn("Model Uuid");
+                table.AddColumn("Project Uuid");
+                table.AddColumn("Route Uuid");
+
+                foreach (var agent in response.Agents)
+                {
+                    table.AddRow(                        
+                        agent.Name ?? "",
+                        agent.Description ?? "",
+                        agent.Uuid ?? "",
+                        agent.Model?.Uuid ?? "",
+                        agent.Project_id ?? "",
+                        agent.Route_uuid ?? ""
+                    );
+                }
+
+                AnsiConsole.Write(table);
+            }
+            else if (options.Create)
+            {
+                if (!string.IsNullOrEmpty(options.WorkspaceName))
+                {
+
+                    options.WorkspaceUuid = await GetWorkSpaceUuid(options.WorkspaceName);
+                    if (options.WorkspaceUuid is null)
+                    {
+                        AnsiConsole.MarkupLine($"[red]Could not find workspace with name: {options.WorkspaceName}.[/]");
+                        Environment.Exit(1);
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(options.Name) ||
+                    string.IsNullOrWhiteSpace(options.Instruction) ||
+                    string.IsNullOrWhiteSpace(options.ModelUuid) ||
+                    string.IsNullOrWhiteSpace(options.WorkspaceUuid)
+                    ) 
+                {
+                    AnsiConsole.MarkupLine("[red]Error: Name, Instruction, ModelUuid, and WorkspaceUuid are required for creating an agent.[/]");
+                    Environment.Exit(1);
+                }
+
+                var input = new ApiCreateAgentInputPublic(
+                    anthropic_key_uuid: null,
+                    description: options.Description,
+                    instruction: options.Instruction,
+                    knowledge_base_uuid: null,
+                    model_provider_key_uuid: null,
+                    model_uuid: options.ModelUuid,
+                    name: options.Name,
+                    open_ai_key_uuid: null,
+                    project_id: options.ProjectUuid,
+                    region: options.Region,
+                    tags: null,
+                    workspace_uuid: options.WorkspaceUuid
+                    
+                );
+
+                var response = await client.Genai_create_agentAsync(input);
+                AnsiConsole.MarkupLine($"[green]Agent '{response.Agent?.Name}' created successfully with UUID: {response.Agent?.Uuid}[/]");
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.WriteException(ex);
+        }
+    }
+
+    static async Task<string?> GetWorkSpaceUuid(string name)
+    {
+        var workspaces = await client.Genai_list_workspacesAsync();
+        var w = workspaces.Workspaces?.FirstOrDefault(_w => _w.Name == name);
+        return w?.Uuid;
+    }
+ 
     static Task HandleParseError<T>(ParserResult<T> result, IEnumerable<CommandLine.Error> errs)
     {
         var helpText = HelpText.AutoBuild(result, h =>
