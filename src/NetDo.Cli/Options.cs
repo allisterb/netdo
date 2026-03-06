@@ -85,8 +85,8 @@ public class AgentOptions : Options
     [Option("workspace-uuid", Required = false, HelpText = "UUID of the workspace to associate with.")]
     public string? WorkspaceUuid { get; set; } = null;
 
-    [Option("instruction", Required = false, HelpText = "Instructions for the agent.")]
-    public string Instruction { get; set; } = string.Empty;
+    [Option("instructions", Required = false, HelpText = "Instructions for the agent.")]
+    public string Instructions { get; set; } = string.Empty;
 
     [Option("model-uuid", Required = false, HelpText = "UUID of the model to use.")]
     public string ModelUuid { get; set; } = string.Empty;

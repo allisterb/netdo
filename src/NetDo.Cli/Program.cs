@@ -75,6 +75,10 @@ internal class Program : Runtime
                 AnsiConsole.Write(table);
             }
         }
+        catch (DigitalOceanApiException<Api.Error> ex)
+        {
+            WriteDigitalOceanErrorException(ex);
+        }
         catch (Exception ex)
         {
             AnsiConsole.WriteException(ex);
@@ -117,6 +121,10 @@ internal class Program : Runtime
 
                 AnsiConsole.Write(table);
             }
+        }
+        catch (DigitalOceanApiException<Api.Error> ex)
+        {
+            WriteDigitalOceanErrorException(ex);
         }
         catch (Exception ex)
         {
@@ -187,7 +195,7 @@ internal class Program : Runtime
 
                 foreach (var agent in response.Agents)
                 {
-                    table.AddRow(                        
+                    table.AddRow(
                         agent.Name ?? "",
                         agent.Description ?? "",
                         agent.Uuid ?? "",
@@ -212,19 +220,20 @@ internal class Program : Runtime
                     }
                 }
                 if (string.IsNullOrWhiteSpace(options.Name) ||
-                    string.IsNullOrWhiteSpace(options.Instruction) ||
+                    string.IsNullOrWhiteSpace(options.Instructions) ||
                     string.IsNullOrWhiteSpace(options.ModelUuid) ||
-                    string.IsNullOrWhiteSpace(options.WorkspaceUuid)
-                    ) 
+                    string.IsNullOrWhiteSpace(options.ProjectUuid) ||
+                    string.IsNullOrWhiteSpace(options.Region)
+                    )
                 {
-                    AnsiConsole.MarkupLine("[red]Error: Name, Instruction, ModelUuid, and WorkspaceUuid are required for creating an agent.[/]");
+                    AnsiConsole.MarkupLine("[red]Error: Name, Instructions, ModelUuid, ProjectUuid and Region are all required for creating an agent.[/]");
                     Environment.Exit(1);
                 }
 
                 var input = new ApiCreateAgentInputPublic(
                     anthropic_key_uuid: null,
                     description: options.Description,
-                    instruction: options.Instruction,
+                    instruction: options.Instructions,
                     knowledge_base_uuid: null,
                     model_provider_key_uuid: null,
                     model_uuid: options.ModelUuid,
@@ -234,16 +243,20 @@ internal class Program : Runtime
                     region: options.Region,
                     tags: null,
                     workspace_uuid: options.WorkspaceUuid
-                    
+
                 );
 
                 var response = await client.Genai_create_agentAsync(input);
                 AnsiConsole.MarkupLine($"[green]Agent '{response.Agent?.Name}' created successfully with UUID: {response.Agent?.Uuid}[/]");
             }
         }
+        catch (DigitalOceanApiException<Api.Error> ex)
+        {
+            WriteDigitalOceanErrorException(ex);
+        }
         catch (Exception ex)
         {
-            AnsiConsole.WriteException(ex);
+            AnsiConsole.WriteException(ex); 
         }
     }
 
@@ -272,6 +285,12 @@ internal class Program : Runtime
     static void PrintLogo()
     {
         AnsiConsole.Write(new FigletText("Digital Ocean").Color(Color.Blue));
+    }
+
+    static void WriteDigitalOceanErrorException(DigitalOceanApiException<Api.Error> exception)
+    {
+        AnsiConsole.MarkupLine($"[red] {exception.Result.Message} [/]");
+        AnsiConsole.WriteException(exception);
     }
 
     static DigitalOceanClient client;
