@@ -293,13 +293,13 @@ internal class Program : Runtime
             }
             AnsiConsole.Write(table);
         }
-        else if (!string.IsNullOrWhiteSpace(options.Fetch))
+        else if (!string.IsNullOrWhiteSpace(options.Get))
         {
-            var response = await client.Genai_get_knowledge_baseAsync(options.Fetch);
+            var response = await client.Genai_get_knowledge_baseAsync(options.Get);
             var kb = response.Knowledge_base;
             if (kb == null)
             {
-                AnsiConsole.MarkupLine($"[red]Knowledge base with UUID '{options.Fetch}' not found.[/]");
+                AnsiConsole.MarkupLine($"[red]Knowledge base with UUID '{options.Get}' not found.[/]");
                 return;
             }
 
@@ -332,53 +332,79 @@ internal class Program : Runtime
         }
         else if (options.Create)
         {
-            if (string.IsNullOrWhiteSpace(options.Name))
+            if (string.IsNullOrWhiteSpace(options.Name) || string.IsNullOrWhiteSpace(options.Region) || string.IsNullOrWhiteSpace(options.ProjectId) || string.IsNullOrWhiteSpace(options.EmbeddingModelUuid))
             {
-                AnsiConsole.MarkupLine("[red]Error: Name is required for creating a knowledge base.[/]");
+                AnsiConsole.MarkupLine("[red]Error: --name, --region, --project-id, and --embedding-model-uuid are required for creating a knowledge base.[/]");
                 return;
             }
             var input = new ApiCreateKnowledgeBaseInputPublic(
-                database_id: null,
+                database_id: options.DatabaseId,
                 datasources: null,
-                embedding_model_uuid: null,
+                embedding_model_uuid: options.EmbeddingModelUuid,
                 name: options.Name,
-                project_id: options.ProjectUuid,
+                project_id: options.ProjectId,
                 region: options.Region,
-                tags: null,
-                vpc_uuid: null
+                tags: options.Tags?.ToList(),
+                vpc_uuid: options.VpcUuid
             );
             var response = await client.Genai_create_knowledge_baseAsync(input);
             AnsiConsole.MarkupLine($"[green]Knowledge base '{response.Knowledge_base?.Name}' created successfully with UUID: {response.Knowledge_base?.Uuid}[/]");
         }
+        else if (options.ListEmbeddingModels)
+        {
+            var usecases = new List<Anonymous2> { Anonymous2.MODEL_USECASE_KNOWLEDGEBASE };
+            var response = await client.Genai_list_modelsAsync(usecases, true, null, null);
+
+            if (response.Models == null || !response.Models.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]No embedding models found.[/]");
+                return;
+            }
+
+            var table = new Table();
+            table.AddColumn("Name");
+            table.AddColumn("Uuid");
+
+            foreach (var model in response.Models)
+            {
+                table.AddRow(
+                    model.Name ?? "",
+                    model.Uuid ?? ""
+                );
+            }
+
+            AnsiConsole.Write(table);
+        }
         else if (options.AddDataSource)
         {
-            if (string.IsNullOrWhiteSpace(options.KBUuid) || string.IsNullOrWhiteSpace(options.SpaceName) || string.IsNullOrWhiteSpace(options.Region))
+            if (string.IsNullOrWhiteSpace(options.Uuid) || string.IsNullOrWhiteSpace(options.BucketName) || string.IsNullOrWhiteSpace(options.Region))
             {
-                AnsiConsole.MarkupLine("[red]Error: kb-uuid, space-name, and region are required to add a data source.[/]");
+                AnsiConsole.MarkupLine("[red]Error: --uuid, --bucket-name, and --region are required to add a data source.[/]");
                 return;
             }
             var dsInput = new ApiCreateKnowledgeBaseDataSourceInputPublic(
                 aws_data_source: null,
                 chunking_algorithm: null,
                 chunking_options: null,
-                knowledge_base_uuid: options.KBUuid,
-                spaces_data_source: new ApiSpacesDataSource(options.SpaceName, options.ItemPath, options.Region),
+                knowledge_base_uuid: options.Uuid,
+                spaces_data_source: new ApiSpacesDataSource(options.BucketName, options.ItemPath, options.Region),
                 web_crawler_data_source: null
             );
-            var response = await client.Genai_create_knowledge_base_data_sourceAsync(options.KBUuid, dsInput);
+            var response = await client.Genai_create_knowledge_base_data_sourceAsync(options.Uuid, dsInput);
             AnsiConsole.MarkupLine($"[green]Data source added successfully with UUID: {response.Knowledge_base_data_source?.Uuid}[/]");
         }
-        else if (!string.IsNullOrWhiteSpace(options.RemoveDataSource))
+        else if (!string.IsNullOrWhiteSpace(options.DeleteDataSource))
         {
-            if (string.IsNullOrWhiteSpace(options.KBUuid))
+            if (string.IsNullOrWhiteSpace(options.Uuid))
             {
-                AnsiConsole.MarkupLine("[red]Error: kb-uuid is required to remove a data source.[/]");
+                AnsiConsole.MarkupLine("[red]Error: --uuid is required to remove a data source.[/]");
                 return;
             }
-            await client.Genai_delete_knowledge_base_data_sourceAsync(options.KBUuid, options.RemoveDataSource);
-            AnsiConsole.MarkupLine($"[green]Data source '{options.RemoveDataSource}' removed successfully.[/]");
+            await client.Genai_delete_knowledge_base_data_sourceAsync(options.Uuid, options.DeleteDataSource);
+            AnsiConsole.MarkupLine($"[green]Data source '{options.DeleteDataSource}' removed successfully.[/]");
         }
     }
+    
 
     static async Task<string?> GetWorkSpaceUuid(string name)
     {

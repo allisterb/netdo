@@ -2,6 +2,7 @@ namespace DigitalOcean.Cli;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 using CommandLine;
@@ -104,42 +105,56 @@ public class AgentOptions : Options
     public string Region { get; set; } = string.Empty;
 }
 
-[Verb("kb", HelpText = "View and manage Digital Ocean knowledge bases.")]
+[Verb("kb", HelpText = "Display commands that manage DigitalOcean Agent Knowledge Bases.")]
 public class KBOptions : Options
 {
-    [Option("list", Required = false, HelpText = "List all knowledge bases.", SetName = "kb_options")]
-    public bool List { get; set; }
+// Subcommands
+[Option("list", Required = false, HelpText = "List all knowledge bases for agents.", SetName = "kb_options")]
+public bool List { get; set; }
 
-    [Option("fetch", Required = false, HelpText = "Fetch details of a knowledge base by UUID.", SetName = "kb_options")]
-    public string Fetch { get; set; } = string.Empty;
+[Option("get", Required = false, HelpText = "Retrieves a Knowledge Base by its uuid.", SetName = "kb_options")]
+public string Get { get; set; } = string.Empty;
 
-    [Option("create", Required = false, HelpText = "Create a knowledge base.", SetName = "kb_options")]
-    public bool Create { get; set; }
+[Option("create", Required = false, HelpText = "Creates a knowledge base.", SetName = "kb_options")]
+public bool Create { get; set; }
 
-    [Option("add-datasource", Required = false, HelpText = "Add a Digital Ocean Space as a data source to a KB.", SetName = "kb_options")]
-    public bool AddDataSource { get; set; }
+[Option("list-embedding-models", Required = false, HelpText = "List all available embedding models and their UUIDs.", SetName = "kb_options")]
+public bool ListEmbeddingModels { get; set; }
 
-    [Option("remove-datasource", Required = false, HelpText = "Remove a data source from a KB.", SetName = "kb_options")]
-    public string RemoveDataSource { get; set; } = string.Empty;
+[Option("add-datasource", Required = false, HelpText = "Add one datasource for knowledge base.", SetName = "kb_options")]
+public bool AddDataSource { get; set; }
+    [Option("delete-datasource", Required = false, HelpText = "Delete a datasource for knowledge base using its id.", SetName = "kb_options")]
+    public string DeleteDataSource { get; set; } = string.Empty;
 
-    [Option("name", Required = false, HelpText = "Name of the knowledge base.")]
+    // Flags
+    [Option("name", Required = false, HelpText = "The name of the Knowledge Base.")]
     public string Name { get; set; } = string.Empty;
 
-    [Option("description", Required = false, HelpText = "Description of the knowledge base.")]
-    public string Description { get; set; } = string.Empty;
-
-    [Option("kb-uuid", Required = false, HelpText = "UUID of the knowledge base.")]
-    public string KBUuid { get; set; } = string.Empty;
-
-    [Option("space-name", Required = false, HelpText = "Name of the Digital Ocean Space (bucket).")]
-    public string SpaceName { get; set; } = string.Empty;
-
-    [Option("region", Required = false, HelpText = "Region for the KB or Space.")]
+    [Option("region", Required = false, HelpText = "The region of the Knowledge Base.")]
     public string Region { get; set; } = string.Empty;
 
-    [Option("project-uuid", Required = false, HelpText = "UUID of the project.")]
-    public string ProjectUuid { get; set; } = string.Empty;
+    [Option("project-id", Required = false, HelpText = "The project ID of the Knowledge Base.")]
+    public string ProjectId { get; set; } = string.Empty;
 
-    [Option("item-path", Required = false, HelpText = "Optional path within the Space.")]
+    [Option("embedding-model-uuid", Required = false, HelpText = "The embedding model UUID of the Knowledge Base.")]
+    public string EmbeddingModelUuid { get; set; } = string.Empty;
+
+    [Option("database-id", Required = false, HelpText = "The database ID of the Knowledge Base.")]
+    public string DatabaseId { get; set; } = string.Empty;
+
+    [Option("tags", Required = false, HelpText = "The tags of the Knowledge Base. Example: --tags tag1,tag2,tag3")]
+    public IEnumerable<string> Tags { get; set; } = Enumerable.Empty<string>();
+
+    [Option("vpc_uuid", Required = false, HelpText = "The VPC UUID of the Knowledge Base.")]
+    public string VpcUuid { get; set; } = string.Empty;
+
+    [Option("uuid", Required = false, HelpText = "The UUID of the Knowledge Base.")]
+    public string Uuid { get; set; } = string.Empty;
+
+    // Data source flags
+    [Option("bucket-name", Required = false, HelpText = "The bucket name of data source from Spaces")]
+    public string BucketName { get; set; } = string.Empty;
+
+    [Option("item-path", Required = false, HelpText = "Item path of data source from Spaces.")]
     public string ItemPath { get; set; } = string.Empty;
 }
