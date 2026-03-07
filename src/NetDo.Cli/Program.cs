@@ -31,7 +31,7 @@ internal class Program : Runtime
             with.CaseInsensitiveEnumValues = true;
             with.HelpWriter = null;
         });
-        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions, AgentOptions>(args);
+        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions, AgentOptions, KBOptions>(args);
         try
         {
             await result.MapResult(
@@ -39,6 +39,7 @@ internal class Program : Runtime
                 async (WorkspaceOptions opts) => await HandleWorkspacesArgs(opts),
                 async (ModelOptions opts) => await HandleModelArgs(opts),
                 async (AgentOptions opts) => await HandleAgentArgs(opts),
+                async (KBOptions opts) => await HandleKBArgs(opts),
                 errs => HandleParseError(result, errs)
             );
         }
@@ -267,6 +268,115 @@ internal class Program : Runtime
             );
             var response = await client.Genai_create_agentAsync(input);
             AnsiConsole.MarkupLine($"[green]Agent '{response.Agent?.Name}' created successfully with UUID: {response.Agent?.Uuid}[/]");
+        }
+    }
+
+    static async Task HandleKBArgs(KBOptions options)
+    {
+        if (options.List)
+        {
+            var response = await client.Genai_list_knowledge_basesAsync(null, null);
+            if (response.Knowledge_bases == null || !response.Knowledge_bases.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]No knowledge bases found.[/]");
+                return;
+            }
+
+            var table = new Table();
+            table.AddColumn("Name");
+            table.AddColumn("Uuid");
+            table.AddColumn("Region");
+
+            foreach (var kb in response.Knowledge_bases)
+            {
+                table.AddRow(kb.Name ?? "", kb.Uuid ?? "", kb.Region ?? "");
+            }
+            AnsiConsole.Write(table);
+        }
+        else if (!string.IsNullOrWhiteSpace(options.Fetch))
+        {
+            var response = await client.Genai_get_knowledge_baseAsync(options.Fetch);
+            var kb = response.Knowledge_base;
+            if (kb == null)
+            {
+                AnsiConsole.MarkupLine($"[red]Knowledge base with UUID '{options.Fetch}' not found.[/]");
+                return;
+            }
+
+            var grid = new Grid();
+            grid.AddColumn();
+            grid.AddColumn();
+
+            grid.AddRow("[blue]Name:[/]", kb.Name ?? "");
+            grid.AddRow("[blue]UUID:[/]", kb.Uuid ?? "");
+            grid.AddRow("[blue]Region:[/]", kb.Region ?? "");
+            grid.AddRow("[blue]Embedding Model:[/]", kb.Embedding_model_uuid ?? "");
+
+            var dsResponse = await client.Genai_list_knowledge_base_data_sourcesAsync(kb.Uuid!, null, null);
+            if (dsResponse.Knowledge_base_data_sources != null && dsResponse.Knowledge_base_data_sources.Any())
+            {
+                var dsTable = new Table().Border(TableBorder.None).HideHeaders();
+                dsTable.AddColumn("Type");
+                dsTable.AddColumn("Details");
+                foreach (var ds in dsResponse.Knowledge_base_data_sources)
+                {
+                    string details = ds.Spaces_data_source != null 
+                        ? $"Spaces: {ds.Spaces_data_source.Bucket_name} ({ds.Spaces_data_source.Region})" 
+                        : ds.Uuid ?? "";
+                    dsTable.AddRow(ds.Spaces_data_source != null ? "DO Space" : "Other", details);
+                }
+                grid.AddRow(new Markup("[blue]Data Sources:[/ binary]"), dsTable);
+            }
+
+            AnsiConsole.Write(new Panel(grid) { Header = new PanelHeader($"KB Details: {kb.Name}") });
+        }
+        else if (options.Create)
+        {
+            if (string.IsNullOrWhiteSpace(options.Name))
+            {
+                AnsiConsole.MarkupLine("[red]Error: Name is required for creating a knowledge base.[/]");
+                return;
+            }
+            var input = new ApiCreateKnowledgeBaseInputPublic(
+                database_id: null,
+                datasources: null,
+                embedding_model_uuid: null,
+                name: options.Name,
+                project_id: options.ProjectUuid,
+                region: options.Region,
+                tags: null,
+                vpc_uuid: null
+            );
+            var response = await client.Genai_create_knowledge_baseAsync(input);
+            AnsiConsole.MarkupLine($"[green]Knowledge base '{response.Knowledge_base?.Name}' created successfully with UUID: {response.Knowledge_base?.Uuid}[/]");
+        }
+        else if (options.AddDataSource)
+        {
+            if (string.IsNullOrWhiteSpace(options.KBUuid) || string.IsNullOrWhiteSpace(options.SpaceName) || string.IsNullOrWhiteSpace(options.Region))
+            {
+                AnsiConsole.MarkupLine("[red]Error: kb-uuid, space-name, and region are required to add a data source.[/]");
+                return;
+            }
+            var dsInput = new ApiCreateKnowledgeBaseDataSourceInputPublic(
+                aws_data_source: null,
+                chunking_algorithm: null,
+                chunking_options: null,
+                knowledge_base_uuid: options.KBUuid,
+                spaces_data_source: new ApiSpacesDataSource(options.SpaceName, options.ItemPath, options.Region),
+                web_crawler_data_source: null
+            );
+            var response = await client.Genai_create_knowledge_base_data_sourceAsync(options.KBUuid, dsInput);
+            AnsiConsole.MarkupLine($"[green]Data source added successfully with UUID: {response.Knowledge_base_data_source?.Uuid}[/]");
+        }
+        else if (!string.IsNullOrWhiteSpace(options.RemoveDataSource))
+        {
+            if (string.IsNullOrWhiteSpace(options.KBUuid))
+            {
+                AnsiConsole.MarkupLine("[red]Error: kb-uuid is required to remove a data source.[/]");
+                return;
+            }
+            await client.Genai_delete_knowledge_base_data_sourceAsync(options.KBUuid, options.RemoveDataSource);
+            AnsiConsole.MarkupLine($"[green]Data source '{options.RemoveDataSource}' removed successfully.[/]");
         }
     }
 

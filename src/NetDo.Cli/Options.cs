@@ -103,3 +103,43 @@ public class AgentOptions : Options
     [Option("region", Required = false, HelpText = "Region for the agent.")]
     public string Region { get; set; } = string.Empty;
 }
+
+[Verb("kb", HelpText = "View and manage Digital Ocean knowledge bases.")]
+public class KBOptions : Options
+{
+    [Option("list", Required = false, HelpText = "List all knowledge bases.", SetName = "kb_options")]
+    public bool List { get; set; }
+
+    [Option("fetch", Required = false, HelpText = "Fetch details of a knowledge base by UUID.", SetName = "kb_options")]
+    public string Fetch { get; set; } = string.Empty;
+
+    [Option("create", Required = false, HelpText = "Create a knowledge base.", SetName = "kb_options")]
+    public bool Create { get; set; }
+
+    [Option("add-datasource", Required = false, HelpText = "Add a Digital Ocean Space as a data source to a KB.", SetName = "kb_options")]
+    public bool AddDataSource { get; set; }
+
+    [Option("remove-datasource", Required = false, HelpText = "Remove a data source from a KB.", SetName = "kb_options")]
+    public string RemoveDataSource { get; set; } = string.Empty;
+
+    [Option("name", Required = false, HelpText = "Name of the knowledge base.")]
+    public string Name { get; set; } = string.Empty;
+
+    [Option("description", Required = false, HelpText = "Description of the knowledge base.")]
+    public string Description { get; set; } = string.Empty;
+
+    [Option("kb-uuid", Required = false, HelpText = "UUID of the knowledge base.")]
+    public string KBUuid { get; set; } = string.Empty;
+
+    [Option("space-name", Required = false, HelpText = "Name of the Digital Ocean Space (bucket).")]
+    public string SpaceName { get; set; } = string.Empty;
+
+    [Option("region", Required = false, HelpText = "Region for the KB or Space.")]
+    public string Region { get; set; } = string.Empty;
+
+    [Option("project-uuid", Required = false, HelpText = "UUID of the project.")]
+    public string ProjectUuid { get; set; } = string.Empty;
+
+    [Option("item-path", Required = false, HelpText = "Optional path within the Space.")]
+    public string ItemPath { get; set; } = string.Empty;
+}
