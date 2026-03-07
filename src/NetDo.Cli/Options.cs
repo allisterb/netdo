@@ -73,17 +73,14 @@ public class AgentOptions : Options
     [Option("create", Required = false, HelpText = "Create an agent.", SetName = "agent_options")]
     public bool Create { get; set; }
 
-    [Option("name", Required = false, HelpText = "Name of the agent to create.")]
+    [Option("fetch", Required = false, HelpText = "Fetch details of an agent by UUID.", SetName = "agent_options")]
+    public string Fetch { get; set; } = string.Empty;
+
+    [Option("name", Required = false, HelpText = "Name of the agent.")]
     public string Name { get; set; } = string.Empty;
 
-    [Option("description", Required = false, HelpText = "Description of the agent to create.")]
+    [Option("description", Required = false, HelpText = "Description of the agent.")]
     public string Description { get; set; } = string.Empty;
-
-    [Option("workspace-name", Required = false, HelpText = "Name of the workspace to associate with.")]
-    public string? WorkspaceName { get; set; } = null;
-
-    [Option("workspace-uuid", Required = false, HelpText = "UUID of the workspace to associate with.")]
-    public string? WorkspaceUuid { get; set; } = null;
 
     [Option("instructions", Required = false, HelpText = "Instructions for the agent.")]
     public string Instructions { get; set; } = string.Empty;
@@ -93,9 +90,15 @@ public class AgentOptions : Options
 
     [Option("model-key-uuid", Required = false, HelpText = "UUID of the model key to use.")]
     public string ModelKeyUuid { get; set; } = string.Empty;
-   
+
     [Option("project-uuid", Required = false, HelpText = "UUID of the project to associate with.")]
     public string ProjectUuid { get; set; } = string.Empty;
+
+    [Option("workspace-uuid", Required = false, HelpText = "UUID of the workspace to associate with.")]
+    public string WorkspaceUuid { get; set; } = string.Empty;
+
+    [Option("workspace-name", Required = false, HelpText = "Name of the workspace to associate with.")]
+    public string WorkspaceName { get; set; } = string.Empty;
 
     [Option("region", Required = false, HelpText = "Region for the agent.")]
     public string Region { get; set; } = string.Empty;

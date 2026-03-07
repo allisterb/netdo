@@ -195,9 +195,40 @@ internal class Program : Runtime
             }
 
             AnsiConsole.Write(table);
-        }
-        else if (options.Create)
-        {
+            }
+            else if (!string.IsNullOrWhiteSpace(options.Fetch))
+            {
+            var response = await client.Genai_get_agentAsync(options.Fetch);
+            var agent = response.Agent;
+
+            if (agent == null)
+            {
+                AnsiConsole.MarkupLine($"[red]Agent with UUID '{options.Fetch}' not found.[/]");
+                return;
+            }
+
+            var grid = new Grid();
+            grid.AddColumn();
+            grid.AddColumn();
+
+            grid.AddRow("[blue]Name:[/]", agent.Name ?? "");
+            grid.AddRow("[blue]UUID:[/]", agent.Uuid ?? "");
+            grid.AddRow("[blue]Description:[/]", agent.Description ?? "");
+            grid.AddRow("[blue]Instruction:[/]", agent.Instruction ?? "");
+            grid.AddRow("[blue]Model:[/]", $"{agent.Model?.Name} ({agent.Model?.Uuid})");
+            grid.AddRow("[blue]Model Key:[/]", $"{agent.Model_provider_key?.Name} ({agent.Model_provider_key?.Api_key_uuid})");
+            grid.AddRow("[blue]Project ID:[/]", agent.Project_id ?? "");
+            grid.AddRow("[blue]Workspace:[/]", $"{agent.Workspace?.Name} ({agent.Workspace?.Uuid})");
+            grid.AddRow("[blue]Created At:[/]", agent.Created_at?.ToString() ?? "");
+            grid.AddRow("[blue]Updated At:[/]", agent.Updated_at?.ToString() ?? "");
+
+            AnsiConsole.Write(new Panel(grid)
+            {
+                Header = new PanelHeader($"Agent Details: {agent.Name}"),
+                Padding = new Padding(1, 1, 1, 1)
+            });
+            }
+            else if (options.Create)        {
             if (!string.IsNullOrEmpty(options.WorkspaceName))
             {
 
@@ -234,7 +265,6 @@ internal class Program : Runtime
                 workspace_uuid: options.WorkspaceUuid
 
             );
-
             var response = await client.Genai_create_agentAsync(input);
             AnsiConsole.MarkupLine($"[green]Agent '{response.Agent?.Name}' created successfully with UUID: {response.Agent?.Uuid}[/]");
         }
