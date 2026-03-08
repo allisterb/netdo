@@ -199,76 +199,90 @@ internal class Program : Runtime
         }
         else if (!string.IsNullOrWhiteSpace(options.Fetch))
         {
-        var response = await client.Genai_get_agentAsync(options.Fetch);
-        var agent = response.Agent;
+            var response = await client.Genai_get_agentAsync(options.Fetch);
+            var agent = response.Agent;
 
-        if (agent == null)
-        {
-            AnsiConsole.MarkupLine($"[red]Agent with UUID '{options.Fetch}' not found.[/]");
-            return;
-        }
-        var keys = await client.Genai_list_agent_api_keysAsync(agent.Uuid!, null, null);
-        var grid = new Grid();
-        grid.AddColumn();
-        grid.AddColumn();
-
-        grid.AddRow("[blue]Name:[/]", agent.Name ?? "");
-        grid.AddRow("[blue]UUID:[/]", agent.Uuid ?? "");
-        grid.AddRow("[blue]Description:[/]", agent.Description ?? "");
-        grid.AddRow("[blue]Instruction:[/]", agent.Instruction ?? "");
-        grid.AddRow("[blue]Model:[/]", $"{agent.Model?.Name} ({agent.Model?.Uuid})");
-        grid.AddRow("[blue]Model Key:[/]", $"{agent.Model_provider_key?.Name} ({agent.Model_provider_key?.Api_key_uuid})");
-        grid.AddRow("[blue]Project ID:[/]", agent.Project_id ?? "");
-        grid.AddRow("[blue]Workspace:[/]", $"{agent.Workspace?.Name} ({agent.Workspace?.Uuid})");
-        grid.AddRow("[blue]Created At:[/]", agent.Created_at?.ToString() ?? "");
-        grid.AddRow("[blue]Updated At:[/]", agent.Updated_at?.ToString() ?? "");
-        if (keys is not null && keys.Api_key_infos is not null && keys.Api_key_infos.Any())
-        {
-            grid.AddRow("", "");
-            grid.AddRow("[blue]API Keys:[/]", "");
-            foreach (var key in keys.Api_key_infos)
+            if (agent == null)
             {
-                grid.AddRow($"  [blue]{key.Name ?? "Unnamed"}:[/]", $"{key.Secret_key ?? "(masked)"} ({key.Uuid})");
+                AnsiConsole.MarkupLine($"[red]Agent with UUID '{options.Fetch}' not found.[/]");
+                return;
             }
-        }
+            var keys = await client.Genai_list_agent_api_keysAsync(agent.Uuid!, null, null);
 
-                    AnsiConsole.Write(new Panel(grid)
-                    {
-                        Header = new PanelHeader($"Agent Details: {agent.Name}"),
-                        Padding = new Padding(1, 1, 1, 1)
-                    });
-                }
-                else if (!string.IsNullOrWhiteSpace(options.CreateKey))
+            var grid = new Grid();
+            grid.AddColumn();
+            grid.AddColumn();
+            grid.AddRow("[blue]Name:[/]", agent.Name ?? "");
+            grid.AddRow("[blue]UUID:[/]", agent.Uuid ?? "");
+            grid.AddRow("[blue]Description:[/]", agent.Description ?? "");
+            grid.AddRow("[blue]Instruction:[/]", agent.Instruction ?? "");
+            grid.AddRow("[blue]Model:[/]", $"{agent.Model?.Name} ({agent.Model?.Uuid})");
+            grid.AddRow("[blue]Model Key:[/]", $"{agent.Model_provider_key?.Name} ({agent.Model_provider_key?.Api_key_uuid})");
+            grid.AddRow("[blue]Project ID:[/]", agent.Project_id ?? "");
+            grid.AddRow("[blue]Workspace:[/]", $"{agent.Workspace?.Name} ({agent.Workspace?.Uuid})");
+            grid.AddRow("[blue]Created At:[/]", agent.Created_at?.ToString() ?? "");
+            grid.AddRow("[blue]Updated At:[/]", agent.Updated_at?.ToString() ?? "");
+
+            if (agent.Deployment != null)
+            {
+                grid.AddRow("[blue]Deployment:[/]", "");
+                grid.AddRow("  [blue]Name:[/]", agent.Deployment.Name ?? "");
+                grid.AddRow("  [blue]Status:[/]", agent.Deployment.Status?.ToString() ?? "");
+                grid.AddRow("  [blue]Visibility:[/]", agent.Deployment.Visibility?.ToString() ?? "");
+                grid.AddRow("  [blue]UUID:[/]", agent.Deployment.Uuid ?? "");
+                grid.AddRow("  [blue]URL:[/]", agent.Deployment.Url ?? "");
+                grid.AddRow("  [blue]Created At:[/]", agent.Deployment.Created_at?.ToString() ?? "");
+                grid.AddRow("  [blue]Updated At:[/]", agent.Deployment.Updated_at?.ToString() ?? "");
+            }
+            if (keys is not null && keys.Api_key_infos is not null && keys.Api_key_infos.Any())
+            {
+                grid.AddRow("", "");
+                grid.AddRow("[blue]Agent APi Keys:[/]", "");
+                foreach (var key in keys.Api_key_infos)
                 {
-                    if (string.IsNullOrWhiteSpace(options.Name))
-                    {
-                        AnsiConsole.MarkupLine("[red]Error: --name is required for creating an agent API key.[/]");
-                        Environment.Exit(1);
-                    }
-        
-                    var input = new ApiCreateAgentAPIKeyInputPublic(options.CreateKey, options.Name);
-                    var response = await client.Genai_create_agent_api_keyAsync(options.CreateKey, input);
-                    var keyInfo = response.Api_key_info;
-        
-                    AnsiConsole.MarkupLine($"[green]API key '{keyInfo?.Name}' created successfully for agent: {options.CreateKey}[/]");
-                    AnsiConsole.MarkupLine($"[blue]UUID:[/] {keyInfo?.Uuid}");
-                    AnsiConsole.MarkupLine($"[yellow]Secret Key:[/] [bold]{keyInfo?.Secret_key}[/]");
-                                AnsiConsole.MarkupLine("[red]Warning: This is the only time the secret key will be displayed. Please save it securely.[/]");
-                            }
-                            else if (options.Create)
-                            {
-                                if (!string.IsNullOrEmpty(options.WorkspaceName))
-                                {
-                                    var workspaceUuid = await GetWorkSpaceUuid(options.WorkspaceName);
-                                    if (workspaceUuid is null)
-                                    {
-                                        AnsiConsole.MarkupLine($"[red]Could not find workspace with name: {options.WorkspaceName}.[/]");
-                                        Environment.Exit(1);
-                                    }
-                                    options.WorkspaceUuid = workspaceUuid;
-                                }
-                    
-                                if (string.IsNullOrWhiteSpace(options.Name) ||                string.IsNullOrWhiteSpace(options.Instructions) ||
+                    grid.AddRow($"  [blue]Name:[/]", $"{key.Name ?? ""}");
+                    grid.AddRow($"  [blue]Uuid:[/]", $"{key.Uuid ?? ""}");
+                    grid.AddRow($"  [blue]Created at:[/]", $"{key.Created_at}");
+                }
+            }
+            AnsiConsole.Write(new Panel(grid)
+            {
+                Header = new PanelHeader($"Agent Details: {agent.Name}"),
+                Padding = new Padding(1, 1, 1, 1)
+            });
+        }
+        else if (!string.IsNullOrWhiteSpace(options.CreateKey))
+        {
+            if (string.IsNullOrWhiteSpace(options.Name))
+            {
+                AnsiConsole.MarkupLine("[red]Error: --name is required for creating an agent API key.[/]");
+                Environment.Exit(1);
+            }
+
+            var input = new ApiCreateAgentAPIKeyInputPublic(options.CreateKey, options.Name);
+            var response = await client.Genai_create_agent_api_keyAsync(options.CreateKey, input);
+            var keyInfo = response.Api_key_info;
+
+            AnsiConsole.MarkupLine($"[green]API key '{keyInfo?.Name}' created successfully for agent: {options.CreateKey}[/]");
+            AnsiConsole.MarkupLine($"[blue]UUID:[/] {keyInfo?.Uuid}");
+            AnsiConsole.MarkupLine($"[yellow]Secret Key:[/] [bold]{keyInfo?.Secret_key}[/]");
+            AnsiConsole.MarkupLine("[red]Warning: This is the only time the secret key will be displayed. Please save it securely.[/]");
+        }       
+        else if (options.Create)
+        {
+            if (!string.IsNullOrEmpty(options.WorkspaceName))
+            {
+                var workspaceUuid = await GetWorkSpaceUuid(options.WorkspaceName);
+                if (workspaceUuid is null)
+                {
+                    AnsiConsole.MarkupLine($"[red]Could not find workspace with name: {options.WorkspaceName}.[/]");
+                    Environment.Exit(1);
+                }
+                options.WorkspaceUuid = workspaceUuid;
+            }
+
+            if (string.IsNullOrWhiteSpace(options.Name) ||
+                string.IsNullOrWhiteSpace(options.Instructions) ||
                 string.IsNullOrWhiteSpace(options.ModelUuid) ||
                 string.IsNullOrWhiteSpace(options.ProjectUuid) ||
                 string.IsNullOrWhiteSpace(options.Region)
