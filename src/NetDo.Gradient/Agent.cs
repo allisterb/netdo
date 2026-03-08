@@ -1,9 +1,5 @@
 namespace DigitalOcean.Gradient;
 
-using DigitalOcean.Api;
-using Microsoft.Extensions.AI;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,10 +8,15 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class Agent : Runtime
+using Microsoft.Extensions.AI;
+using OpenAI;
+
+using DigitalOcean.Api;
+
+public class Agent : DelegatingChatClient
 {
     #region Constructors
-    private Agent(ApiAgent metadata)
+    private Agent(ApiAgent metadata) : base(new OpenAIClient("").GetChatClient(metadata.Model?.Name).AsIChatClient())
     {
         this.metadata = metadata;
         this._client = new DigitalOceanClient();
