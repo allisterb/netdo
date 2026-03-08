@@ -77,7 +77,13 @@ public class AgentOptions : Options
     [Option("create-key", Required = false, HelpText = "Create an API key for the agent with the specified UUID.", SetName = "agent_options")]
     public string CreateKey { get; set; } = string.Empty;
     
-    [Option("fetch", Required = false, HelpText = "Fetch details of an agent by UUID.", SetName = "agent_options")]
+    [Option("show-key", Required = false, HelpText = "Display the API keys and secret keys for the agent with the specified UUID.", SetName = "agent_options")]
+    public string ShowKey { get; set; } = string.Empty;
+    
+    [Option("deploy-public", Required = false, HelpText = "Set the agent's deployment visibility to public.", SetName = "agent_options")]
+    public string DeployPublic { get; set; } = string.Empty;
+    
+    [Option("fetch", Required = false, HelpText = "Fetch details of an agent by UUID.", SetName = "agent_options")]    
     public string Fetch { get; set; } = string.Empty;
 
     [Option("name", Required = false, HelpText = "Name of the agent.")]

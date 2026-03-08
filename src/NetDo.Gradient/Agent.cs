@@ -1,5 +1,9 @@
 namespace DigitalOcean.Gradient;
 
+using DigitalOcean.Api;
+using Microsoft.Extensions.AI;
+using OpenAI;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,25 +12,22 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.AI;
-using OpenAI;
-
-using DigitalOcean.Api;
-
 public class Agent : DelegatingChatClient
 {
     #region Constructors
-    private Agent(ApiAgent metadata) : base(GetOpenAIChatClientForApiAgent(metadata))
+    private Agent(ApiAgent _agent) : base(GetOpenAIChatClientForApiAgent(_agent))
     {
-        this.metadata = metadata;
-        this._client = new DigitalOceanClient();
+        this._agent = _agent;
+        this.client = new DigitalOceanClient();
+        ///this.InnerClient.
+        //this.openAIClient = (OpenAIClient)this.InnerClient.;
     }
 
     public Agent(string uuid) : this(GetAgent(uuid)) {}
     #endregion
 
     #region Properties
-    public string Id => metadata.Uuid!;
+    public string Id => _agent.Uuid!;
 
     #endregion
 
@@ -61,9 +62,13 @@ public class Agent : DelegatingChatClient
         var endpoint = agent.Deployment?.Url ?? throw new ArgumentNullException($"The agent {agent.Uuid} ({agent.Name}) deployment field or deployment url is null.");
         var apikey = Environment.GetEnvironmentVariable("GRADIENT_AGENT_API_TOKEN") ?? throw new ArgumentNullException("The GRADIENT_AGENT_API_TOKEN environment viariable is not set.");
         return 
-            new OpenAIClient(new System.ClientModel.ApiKeyCredential(apikey), new OpenAIClientOptions() { Endpoint = new Uri(endpoint) })
-            .GetChatClient(agent.Model!.Uuid!)
-            .AsIChatClient();
+            new OpenAIClient(new System.ClientModel.ApiKeyCredential(apikey), new OpenAIClientOptions() { Endpoint = new Uri(endpoint + "/api/v1/chat/completions") })
+            .GetChatClient(agent.Model!.Inference_name)           
+            .AsIChatClient()
+            .AsBuilder()
+            .UseLogging(Runtime.loggerFactory)
+            .UseFunctionInvocation(Runtime.loggerFactory)
+            .Build();
     }
 
     public static async Task<IEnumerable<ApiAgentPublic>> ListAsync(bool onlyDeployed = false, CancellationToken ct = default)
@@ -114,20 +119,43 @@ public class Agent : DelegatingChatClient
     #endregion
 
     #region Instance Methods
+    public async Task<ChatResponse> PromptAsync(string prompt, params object[] content)
+    {               
+        var messageItems = new List<AIContent>()
+        {
+            new TextContent(prompt)
+        };
+        if (content is not null)
+        {
+            foreach (var item in content)
+            {
+                if (item is string s)
+                {
+                    messageItems.Add(new TextContent(s));
+                }               
+                else
+                {
+                    throw new ArgumentException($"Unsupported content type {item.GetType()}");
+                }
+            }
+        }        
+        return await this.GetResponseAsync(new ChatMessage(ChatRole.User, messageItems));              
+    }
+
     public async Task RefreshMetadataAsync(CancellationToken ct = default)
     {
-        var response = await _client.Genai_get_agentAsync(Id, ct);
-        metadata = response.Agent;
+        var response = await client.Genai_get_agentAsync(Id, ct);
+        _agent = response.Agent;
     }
 
     public async Task DeleteAsync(CancellationToken ct = default)
     {
-        await _client.Genai_delete_agentAsync(Id, ct);
+        await client.Genai_delete_agentAsync(Id, ct);
     }
 
     public async Task<ApiGetAgentUsageOutput> GetUsageAsync(DateTimeOffset? start = null, DateTimeOffset? stop = null, CancellationToken ct = default)
     {
-        return await _client.Genai_get_agent_usageAsync(Id, start?.ToString("O"), stop?.ToString("O"), ct);
+        return await client.Genai_get_agent_usageAsync(Id, start?.ToString("O"), stop?.ToString("O"), ct);
     }
     /*
     public async Task<EvaluationResult> RunEvaluationAsync(
@@ -297,7 +325,7 @@ public class Agent : DelegatingChatClient
     {
         while (true)
         {
-            var response = await _client.Genai_get_evaluation_runAsync(runUuid, ct);
+            var response = await client.Genai_get_evaluation_runAsync(runUuid, ct);
             var run = response.Evaluation_run!;
 
             if (run.Status == ApiEvaluationRunStatus.EVALUATION_RUN_SUCCESSFUL ||
@@ -322,7 +350,8 @@ public class Agent : DelegatingChatClient
     #endregion
 
     #region Fields
-    protected DigitalOceanClient _client;
-    protected ApiAgent metadata;
+    protected DigitalOceanClient client;
+    protected ApiAgent _agent;
+    //protected OpenAIClient openAIClient;
     #endregion
 }

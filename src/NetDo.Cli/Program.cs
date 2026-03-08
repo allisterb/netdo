@@ -267,7 +267,55 @@ internal class Program : Runtime
             AnsiConsole.MarkupLine($"[blue]UUID:[/] {keyInfo?.Uuid}");
             AnsiConsole.MarkupLine($"[yellow]Secret Key:[/] [bold]{keyInfo?.Secret_key}[/]");
             AnsiConsole.MarkupLine("[red]Warning: This is the only time the secret key will be displayed. Please save it securely.[/]");
-        }       
+        }
+        else if (!string.IsNullOrWhiteSpace(options.ShowKey))
+        {
+            var response = await client.Genai_get_agentAsync(options.ShowKey);
+            var agent = response.Agent;
+
+            if (agent == null)
+            {
+                AnsiConsole.MarkupLine($"[red]Agent with UUID '{options.ShowKey}' not found.[/]");
+                return;
+            }
+
+            var keysResponse = await client.Genai_list_agent_api_keysAsync(agent.Uuid!, null, null);
+            var keys = keysResponse.Api_key_infos;
+
+            if (keys == null || !keys.Any())
+            {
+                AnsiConsole.MarkupLine($"[yellow]No API keys found for agent '{agent.Name}'.[/]");
+                return;
+            }
+
+            AnsiConsole.MarkupLine("[bold red]WARNING: You are about to display the secret API keys for this agent.[/]");
+            AnsiConsole.MarkupLine("[bold red]Ensure you are in a private environment and no one is watching your screen.[/]");
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("Press [blue]any key[/] to continue or [blue]Ctrl+C[/] to cancel...");
+            Console.ReadKey(true);
+
+            var table = new Table();
+            table.AddColumn("Key Name");
+            table.AddColumn("UUID");
+            table.AddColumn("Secret Key");
+
+            foreach (var key in keys)
+            {
+                table.AddRow(
+                    key.Name ?? "Unnamed",
+                    key.Uuid ?? "",
+                    $"[bold yellow]{key.Secret_key ?? "(masked/empty)"}[/]"
+                );
+            }
+
+            AnsiConsole.Write(table);
+        }
+        else if (!string.IsNullOrWhiteSpace(options.DeployPublic))
+        {
+            var input = new ApiUpdateAgentDeploymentVisibilityInputPublic(options.DeployPublic, ApiDeploymentVisibility.VISIBILITY_PUBLIC);
+            var response = await client.Genai_update_agent_deployment_visibilityAsync(options.DeployPublic, input);
+            AnsiConsole.MarkupLine($"[green]Agent '{response.Agent?.Name}' (UUID: {options.DeployPublic}) deployment visibility set to public successfully.[/]");
+        }
         else if (options.Create)
         {
             if (!string.IsNullOrEmpty(options.WorkspaceName))
