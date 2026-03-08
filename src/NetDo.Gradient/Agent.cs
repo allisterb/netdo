@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 public class Agent : DelegatingChatClient
 {
     #region Constructors
-    private Agent(ApiAgent _agent) : base(GetOpenAIChatClientForApiAgent(_agent))
+    private Agent(ApiAgent _agent) : base(GetOpenAIChatClient(_agent))
     {
         this._agent = _agent;
         this.client = new DigitalOceanClient();
@@ -57,18 +57,27 @@ public class Agent : DelegatingChatClient
         }
     }
 
-    public static IChatClient GetOpenAIChatClientForApiAgent(ApiAgent agent)
+    public static IChatClient GetOpenAIChatClient(ApiAgent agent)
     {
         var endpoint = agent.Deployment?.Url ?? throw new ArgumentNullException($"The agent {agent.Uuid} ({agent.Name}) deployment field or deployment url is null.");
         var apikey = Environment.GetEnvironmentVariable("GRADIENT_AGENT_API_TOKEN") ?? throw new ArgumentNullException("The GRADIENT_AGENT_API_TOKEN environment viariable is not set.");
+        
         return 
-            new OpenAIClient(new System.ClientModel.ApiKeyCredential(apikey), new OpenAIClientOptions() { Endpoint = new Uri(endpoint + "/api/v1/chat/completions") })
+            new OpenAIClient(new System.ClientModel.ApiKeyCredential(apikey), new OpenAIClientOptions() 
+            { 
+                Endpoint = new Uri(endpoint + "/api/v1"),
+                ClientLoggingOptions = new System.ClientModel.Primitives.ClientLoggingOptions() 
+                {
+                    EnableLogging = true,
+                    LoggerFactory = Runtime.loggerFactory,                   
+                },                                
+            })
             .GetChatClient(agent.Model!.Inference_name)           
             .AsIChatClient()
             .AsBuilder()
             .UseLogging(Runtime.loggerFactory)
             .UseFunctionInvocation(Runtime.loggerFactory)
-            .Build();
+            .Build();                
     }
 
     public static async Task<IEnumerable<ApiAgentPublic>> ListAsync(bool onlyDeployed = false, CancellationToken ct = default)
