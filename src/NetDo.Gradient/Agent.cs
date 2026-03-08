@@ -16,11 +16,13 @@ using DigitalOcean.Api;
 public class Agent : DelegatingChatClient
 {
     #region Constructors
-    private Agent(ApiAgent metadata) : base(new OpenAIClient("").GetChatClient(metadata.Model?.Name).AsIChatClient())
+    private Agent(ApiAgent metadata) : base(GetOpenAIChatClientForApiAgent(metadata))
     {
         this.metadata = metadata;
         this._client = new DigitalOceanClient();
     }
+
+    public Agent(string uuid) : this(GetAgent(uuid)) {}
     #endregion
 
     #region Properties
@@ -29,6 +31,41 @@ public class Agent : DelegatingChatClient
     #endregion
 
     #region Static Methods
+    public static ApiAgent GetAgent(string uuid)
+    {
+        var client = new DigitalOceanClient();
+        try
+        {
+            var agent = client.Genai_get_agentAsync(uuid).GetAwaiter().GetResult();
+            if (agent is not null && agent.Agent is not null)
+            {
+                return agent.Agent;
+            }
+            else
+            {
+                throw new Exception($"An unknown error occurred attempting to retrieve agent with uuid {uuid}.");
+            }
+        }
+        catch (DigitalOceanApiException<Error> e)
+        {
+            throw new Exception($"An error occurred attempting to retrieve agent with uuid {uuid}: {e.Result.Message}.", e);
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"An error occurred attempting to retrieve agent with uuid {uuid}.", e);
+        }
+    }
+
+    public static IChatClient GetOpenAIChatClientForApiAgent(ApiAgent agent)
+    {
+        var endpoint = agent.Deployment?.Url ?? throw new ArgumentNullException($"The agent {agent.Uuid} ({agent.Name}) deployment field or deployment url is null.");
+        var apikey = Environment.GetEnvironmentVariable("GRADIENT_AGENT_API_TOKEN") ?? throw new ArgumentNullException("The GRADIENT_AGENT_API_TOKEN environment viariable is not set.");
+        return 
+            new OpenAIClient(new System.ClientModel.ApiKeyCredential(apikey), new OpenAIClientOptions() { Endpoint = new Uri(endpoint) })
+            .GetChatClient(agent.Model!.Uuid!)
+            .AsIChatClient();
+    }
+
     public static async Task<IEnumerable<ApiAgentPublic>> ListAsync(bool onlyDeployed = false, CancellationToken ct = default)
     {
         var client = new DigitalOceanClient();

@@ -213,18 +213,18 @@ internal class Program : Runtime
             grid.AddColumn();
             grid.AddColumn();
             grid.AddRow("[blue]Name:[/]", agent.Name ?? "");
-            grid.AddRow("[blue]UUID:[/]", agent.Uuid ?? "");
+            grid.AddRow("[blue]Agent ID:[/]", agent.Uuid ?? "");
+            grid.AddRow("[blue]Project ID:[/]", agent.Project_id ?? "");
+            grid.AddRow("[blue]Workspace ID:[/]", $"{agent.Workspace?.Name} ({agent.Workspace?.Uuid})");
             grid.AddRow("[blue]Description:[/]", agent.Description ?? "");
             grid.AddRow("[blue]Instruction:[/]", agent.Instruction ?? "");
             grid.AddRow("[blue]Model:[/]", $"{agent.Model?.Name} ({agent.Model?.Uuid})");
             grid.AddRow("[blue]Model Key:[/]", $"{agent.Model_provider_key?.Name} ({agent.Model_provider_key?.Api_key_uuid})");
-            grid.AddRow("[blue]Project ID:[/]", agent.Project_id ?? "");
-            grid.AddRow("[blue]Workspace:[/]", $"{agent.Workspace?.Name} ({agent.Workspace?.Uuid})");
             grid.AddRow("[blue]Created At:[/]", agent.Created_at?.ToString() ?? "");
             grid.AddRow("[blue]Updated At:[/]", agent.Updated_at?.ToString() ?? "");
-
             if (agent.Deployment != null)
             {
+                grid.AddRow("", "");
                 grid.AddRow("[blue]Deployment:[/]", "");
                 grid.AddRow("  [blue]Name:[/]", agent.Deployment.Name ?? "");
                 grid.AddRow("  [blue]Status:[/]", agent.Deployment.Status?.ToString() ?? "");
