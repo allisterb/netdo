@@ -421,4 +421,5 @@ FodyWeavers.xsd
 **/testappsettings.json
 **/launchSettings.json
 **/*.md
+!docs/Donna.md
 ext/
