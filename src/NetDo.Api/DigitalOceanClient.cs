@@ -16,7 +16,6 @@ public partial class DigitalOceanClient : Runtime
     protected static HttpClient ConfigureHttpClient(string apikey)
     {
         var httpClient = new HttpClient();       
-        // set the Authorization: Bearer <token> header
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apikey);
         return httpClient;        
     }

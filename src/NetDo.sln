@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36915.13
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11520.95 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDo.Api", "NetDo.Api\NetDo.Api.csproj", "{0268E324-AB56-41DB-BDA1-C04FE87AF7B6}"
 EndProject
@@ -22,6 +22,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CLI", "CLI", "{9D690613-40AA-4965-8530-B5C8ADE993CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDo.Cli", "NetDo.Cli\NetDo.Cli.csproj", "{D8EC5703-31B6-4160-BE13-6B43CB7E5A62}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{12B671B0-C2D9-4BA0-A041-AA94486E8F34}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\docs\Donna.md = ..\docs\Donna.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
