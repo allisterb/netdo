@@ -27,4 +27,14 @@ public class AgentTests : TestsRuntime
         var r = await agent.GetResponseAsync("Get the current weather in London.", options: new ChatOptions() { Tools = tools, ToolMode = ChatToolMode.Auto});
         Assert.NotNull(r);  
     }
+
+    [Fact]
+    public async Task CanQueryKB()
+    {
+        
+        var agent = new Agent("37e2d5f9-183e-11f1-b074-4e013e2ddde4");
+        var r = await agent.GetResponseAsync("List all the agents..");
+        Assert.NotNull(r);
+    }
 }
+
