@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <RootNamespace>DigitalOcean.Tests.Gradient</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\NetDo.Cli\NetDo.Cli.csproj" />
     <ProjectReference Include="..\..\src\NetDo.Gradient\NetDo.Gradient.csproj" />
   </ItemGroup>
 

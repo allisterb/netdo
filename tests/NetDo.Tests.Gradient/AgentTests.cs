@@ -1,8 +1,8 @@
-﻿namespace NetDo.Tests.Gradient;
+﻿namespace DigitalOcean.Tests.Gradient;
 
-using DigitalOcean;
-using DigitalOcean.Gradient;
 using Microsoft.Extensions.AI;
+
+using DigitalOcean.Gradient;
 
 public class AgentTests : TestsRuntime
 {
