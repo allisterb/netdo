@@ -1,6 +1,7 @@
 # Donna JavaScript API
 
-This document is the reference for the Donna JavaScript API. It provides the name of each Donna function, a description of its purpose, and each parameter parameter type.
+This document is the reference for the Donna JavaScript API. It provides the name of each Donna API method, a description of its purpose, and each parameter parameter type.
+Each method is accessed from the `api` instance which is available in every Donna session
 
 
 ## Billing

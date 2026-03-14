@@ -82,7 +82,6 @@ internal class Program : Runtime
                     project.Created_at?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""
                 );
             }
-
             AnsiConsole.Write(table);
         }
         
@@ -119,48 +118,40 @@ internal class Program : Runtime
                     agentsList
                 );
             }
-
             AnsiConsole.Write(table);
         }        
     }
 
     static async Task HandleModelArgs(ModelOptions options)
-    {
-        try
+    {        
+        if (options.List)
         {
-            if (options.List)
+            var response = await client.Genai_list_modelsAsync(null, null, null, null);
+
+            if (response.Models == null || !response.Models.Any())
             {
-                var response = await client.Genai_list_modelsAsync(null, null, null, null);
-
-                if (response.Models == null || !response.Models.Any())
-                {
-                    AnsiConsole.MarkupLine("[yellow]No models found.[/]");
-                    return;
-                }
-
-                var table = new Table();
-                table.AddColumn("Name");
-                table.AddColumn("Uuid");
-                table.AddColumn("Version");
-                table.AddColumn("Updated at");
-
-                foreach (var model in response.Models)
-                {
-                    var version = model.Version?.Major?.ToString() ?? "0" + "." + model.Version?.Minor?.ToString() ?? "0" + "." + model.Version?.Patch?.ToString() ?? "0";
-                    table.AddRow(
-                        model.Name ?? "",
-                        model.Uuid ?? "",
-                        version ?? "",
-                        model.Updated_at?.ToString() ?? ""
-                    );
-                }
-                AnsiConsole.Write(table);
+                AnsiConsole.MarkupLine("[yellow]No models found.[/]");
+                return;
             }
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.WriteException(ex);
-        }
+
+            var table = new Table();
+            table.AddColumn("Name");
+            table.AddColumn("Uuid");
+            table.AddColumn("Version");
+            table.AddColumn("Updated at");
+
+            foreach (var model in response.Models)
+            {
+                var version = model.Version?.Major?.ToString() ?? "0" + "." + model.Version?.Minor?.ToString() ?? "0" + "." + model.Version?.Patch?.ToString() ?? "0";
+                table.AddRow(
+                    model.Name ?? "",
+                    model.Uuid ?? "",
+                    version ?? "",
+                    model.Updated_at?.ToString() ?? ""
+                );
+            }
+            AnsiConsole.Write(table);
+        }               
     }
 
     static async Task HandleAgentArgs(AgentOptions options)
@@ -194,7 +185,6 @@ internal class Program : Runtime
                     agent.Route_uuid ?? ""
                 );
             }
-
             AnsiConsole.Write(table);
         }
         else if (!string.IsNullOrWhiteSpace(options.Fetch))
