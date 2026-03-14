@@ -167,3 +167,10 @@ public bool AddDataSource { get; set; }
     [Option("item-path", Required = false, HelpText = "Item path of data source from Spaces.")]
     public string ItemPath { get; set; } = string.Empty;
 }
+
+[Verb("spaces", HelpText = "View and manage Digital Ocean Spaces.")]
+public class SpacesOptions : Options
+{
+    [Option("list-buckets", Required = false, HelpText = "List all buckets.")]
+    public bool ListBuckets { get; set; }
+}

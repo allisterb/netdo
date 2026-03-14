@@ -31,7 +31,7 @@ internal class Program : Runtime
             with.CaseInsensitiveEnumValues = true;
             with.HelpWriter = null;
         });
-        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions, AgentOptions, KBOptions>(args);
+        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions, AgentOptions, KBOptions, SpacesOptions>(args);
         try
         {
             await result.MapResult(
@@ -40,6 +40,7 @@ internal class Program : Runtime
                 async (ModelOptions opts) => await HandleModelArgs(opts),
                 async (AgentOptions opts) => await HandleAgentArgs(opts),
                 async (KBOptions opts) => await HandleKBArgs(opts),
+                async (SpacesOptions opts) => await HandleSpacesArgs(opts),
                 errs => HandleParseError(result, errs)
             );
         }
@@ -484,6 +485,40 @@ internal class Program : Runtime
         }
     }
     
+
+    static async Task HandleSpacesArgs(SpacesOptions options)
+    {
+        if (options.ListBuckets)
+        {
+            var endpoint = Environment.GetEnvironmentVariable("DIGITALOCEAN_SPACES_ENDPOINT");
+            var accessKeyId = Environment.GetEnvironmentVariable("DIGITALOCEAN_SPACES_ACCESS_KEY_ID");
+            var accessKeySecret = Environment.GetEnvironmentVariable("DIGITALOCEAN_SPACES_ACCESS_KEY_SECRET");
+
+            if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(accessKeyId) || string.IsNullOrWhiteSpace(accessKeySecret))
+            {
+                AnsiConsole.MarkupLine("[red]Error: DIGITALOCEAN_SPACES_ENDPOINT, DIGITALOCEAN_SPACES_ACCESS_KEY_ID, and DIGITALOCEAN_SPACES_ACCESS_KEY_SECRET environment variables must be set.[/]");
+                return;
+            }
+
+            var spacesClient = new SpacesClient(string.Empty, endpoint, accessKeyId, accessKeySecret);
+            var buckets = spacesClient.ListBuckets();
+
+            if (buckets == null || !buckets.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]No buckets found.[/]");
+                return;
+            }
+
+            var table = new Table();
+            table.AddColumn("Bucket Name");
+
+            foreach (var bucket in buckets)
+            {
+                table.AddRow(bucket);
+            }
+            AnsiConsole.Write(table);
+        }
+    }
 
     static async Task<string?> GetWorkSpaceUuid(string name)
     {
