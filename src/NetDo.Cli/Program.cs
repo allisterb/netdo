@@ -500,8 +500,8 @@ internal class Program : Runtime
                 return;
             }
 
-            var spacesClient = new SpacesClient(string.Empty, endpoint, accessKeyId, accessKeySecret);
-            var buckets = spacesClient.ListBuckets();
+            var spacesClient = new SpacesClient(endpoint, accessKeyId, accessKeySecret);
+            var buckets = spacesClient.ListBucketsAsync().GetAwaiter().GetResult();
 
             if (buckets == null || !buckets.Any())
             {
