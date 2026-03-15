@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
 using Spectre.Console;
+using Microsoft.Extensions.AI;
 
 using DigitalOcean.Api;
 using DigitalOcean.Gradient;
@@ -17,9 +18,14 @@ internal class Program : Runtime
 {
     static Program()
     {
-        if (Environment.GetEnvironmentVariable("DIGITALOCEAN_API_TOKEN") is null)
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DIGITALOCEAN_API_TOKEN")))
         {
             AnsiConsole.MarkupLine("[red]The DIGITALOCEAN_API_TOKEN environment variable is not defined.[/]");
+            Environment.Exit(1);
+        }
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GRADIENT_AGENT_API_TOKEN")))
+        {
+            AnsiConsole.MarkupLine("[red]The GRADIENT_AGENT_API_TOKEN environment variable is not defined.[/]");
             Environment.Exit(1);
         }
         client = new DigitalOceanClient();
@@ -33,7 +39,7 @@ internal class Program : Runtime
             with.CaseInsensitiveEnumValues = true;
             with.HelpWriter = null;
         });
-        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions, AgentOptions, KBOptions, SpacesOptions, TestOptions>(args);
+        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions, AgentOptions, KBOptions, SpacesOptions, DonnaOptions, TestOptions>(args);
         try
         {
             await result.MapResult(
@@ -535,7 +541,43 @@ internal class Program : Runtime
 
     static async Task HandleDonnaArgs(DonnaOptions options)
     {
-        var agent = new Agent("37e2d5f9-183e-11f1-b074-4e013e2ddde4")
+        var agent = new Agent("37e2d5f9-183e-11f1-b074-4e013e2ddde4");
+        var session = await agent.CreateSessionAsync();
+        
+        AnsiConsole.MarkupLine("[bold]Donna agent session started. Type '/exit' or '/quit' to end.[/]");
+
+        while (true)
+        {
+            var input = AnsiConsole.Ask<string>("[bold green]Donna>[/] ");
+            
+            if (string.Equals(input, "/exit", StringComparison.OrdinalIgnoreCase) || 
+                string.Equals(input, "/quit", StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                continue;
+            }
+
+            var response = await agent.RunAsync(new ChatMessage[] { new ChatMessage(ChatRole.User, input) }, session);
+            
+            foreach (var message in response.Messages)
+            {
+                if (message.Role == ChatRole.Assistant)
+                {
+                    AnsiConsole.MarkupLine(message.Text);
+
+                    var codeBlocks = JSInterp.ExtractJSFromMarkdown(message.Text);
+                    foreach (var code in codeBlocks)
+                    {
+                        AnsiConsole.MarkupLine("[bold yellow]Executing Donna JavaScript...[/]");
+                        JSInterp.Execute(code);
+                    }
+                }
+            }
+        }
     }
 
     static async Task<string?> GetWorkSpaceUuid(string name)
