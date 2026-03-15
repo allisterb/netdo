@@ -1,0 +1,3 @@
+ The DonnaApi class at @src/NetDo.Cli/Donna.cs will be made available to an embedded JavaScript interpreter at @src/NetDo.Cli/JSInterp.cs as a way for an AI agent named Donna to execute JavaScript code that automates Digital Ocean
+ system  administration tasks. I am documenting the Donna API at @docs/Donna.md that the Donna agent can use to generate JavaScript code. Can you fill out this file based on the existing Donna API that will be made available via
+ JavaScript? Include the JSON schema of objects that will be returned by the API so the agent will be able to generate accurate Javascript code to accomplish specific tasks.

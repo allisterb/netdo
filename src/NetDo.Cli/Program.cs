@@ -11,6 +11,7 @@ using CommandLine.Text;
 using Spectre.Console;
 
 using DigitalOcean.Api;
+using DigitalOcean.Gradient;
 
 internal class Program : Runtime
 {
@@ -42,6 +43,7 @@ internal class Program : Runtime
                 async (AgentOptions opts) => await HandleAgentArgs(opts),
                 async (KBOptions opts) => await HandleKBArgs(opts),
                 async (SpacesOptions opts) => await HandleSpacesArgs(opts),
+                async (DonnaOptions opts) => await HandleDonnaArgs(opts),
                 async (TestOptions opts) => await HandleTestArgs(opts),
 
                 errs => HandleParseError(result, errs)
@@ -529,6 +531,11 @@ internal class Program : Runtime
         {
             JSInterp.Execute(File.ReadAllText(options.Exec));
         }
+    }
+
+    static async Task HandleDonnaArgs(DonnaOptions options)
+    {
+        var agent = new Agent("37e2d5f9-183e-11f1-b074-4e013e2ddde4")
     }
 
     static async Task<string?> GetWorkSpaceUuid(string name)

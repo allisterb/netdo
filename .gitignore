@@ -422,4 +422,5 @@ FodyWeavers.xsd
 **/launchSettings.json
 **/*.md
 !docs/Donna.md
+!docs/*.md
 ext/
