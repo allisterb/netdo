@@ -2,11 +2,25 @@
 
 using System;
 
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
 using Jint;
 using Spectre.Console;
 
 public class JSInterp : Runtime
 {    
+    public static string[] ExtractJSFromMarkdown(string src)
+    {
+        var matches = Regex.Matches(src, @"```javascript\s+(.*?)\s+```", RegexOptions.Singleline);
+        var list = new List<string>();
+        foreach (Match match in matches)
+        {
+            list.Add(match.Groups[1].Value);
+        }
+        return list.ToArray();
+    }
+
     public static void JSInfo(object o)
     {
         var s = o.ToString() + Environment.NewLine;
