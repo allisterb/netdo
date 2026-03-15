@@ -39,6 +39,12 @@ public class DonnaApi
     /// </summary>
     /// <returns></returns>
     public ApiModelPublic[]? ListModels() => client.Genai_list_modelsAsync(null, null, null, null).GetAwaiter().GetResult()?.Models?.ToArray();
+
+    /// <summary>
+    /// Get the current balance for the account.
+    /// </summary>
+    /// <returns></returns>
+    public Balance? GetBalance() => client.Balance_getAsync().GetAwaiter().GetResult();
     #endregion
 
     #region Fields

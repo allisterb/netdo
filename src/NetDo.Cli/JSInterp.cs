@@ -5,7 +5,7 @@ using System;
 using Jint;
 using Spectre.Console;
 
-public class JSInterop : Runtime
+public class JSInterp : Runtime
 {    
     public static void JSInfo(object o)
     {
@@ -13,7 +13,14 @@ public class JSInterop : Runtime
         Info(s);
         AnsiConsole.Write(new Markup(s, new Style(foreground: Color.White)));
     }
-    
+
+    public static void JSError(object o)
+    {
+        var s = o.ToString() + Environment.NewLine;
+        Error(s);
+        AnsiConsole.Write(new Markup(s, new Style(foreground: Color.Red)));
+    }
+
     public static void Execute(string src)
     {
         var jsoptions = new Jint.Options();
@@ -21,6 +28,7 @@ public class JSInterop : Runtime
 
         var engine = new Engine(jsoptions)
             .SetValue("log", JSInfo)
+            .SetValue("error", JSError)
             .SetValue("api", new DonnaApi());
         engine.Execute(src);
     }
