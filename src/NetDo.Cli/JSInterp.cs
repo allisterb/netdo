@@ -6,12 +6,17 @@ using Jint;
 using Spectre.Console;
 
 public class JSInterp : Runtime
-{    
+{
+    protected readonly static Markup infoHeader = new Markup("[info]", new Style(foreground: Color.LightGreen));
+
+    protected readonly static Style infoStyle = new Style(foreground: Color.White);
+
     public static void JSInfo(object o)
     {
-        var s = o.ToString() + Environment.NewLine;
+        var s = o.ToString() ?? "";
         Info(s);
-        AnsiConsole.Write(new Markup(s, new Style(foreground: Color.White)));
+        AnsiConsole.Write(infoHeader);
+        AnsiConsole.Write(new Markup(s + Environment.NewLine, infoStyle));
     }
 
     public static void JSError(object o)
