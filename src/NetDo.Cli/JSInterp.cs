@@ -23,9 +23,10 @@ public class JSInterp : Runtime
 
     public static void JSInfo(object o)
     {
-        var s = o.ToString() + Environment.NewLine;
+        var s = o.ToString() ?? "";
         Info(s);
-        AnsiConsole.Write(new Markup(s, new Style(foreground: Color.White)));
+        AnsiConsole.Write(infoHeader);
+        AnsiConsole.Write(new Markup(s + Environment.NewLine, infoStyle));
     }
 
     public static void JSError(object o)
