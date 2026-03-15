@@ -174,3 +174,10 @@ public class SpacesOptions : Options
     [Option("list-buckets", Required = false, HelpText = "List all buckets.")]
     public bool ListBuckets { get; set; }
 }
+
+[Verb("test", HelpText = "Test different CLI commands and options.")]
+public class TestOptions : Options
+{
+    [Option("exec", Required = false, HelpText = "Execute JavaScript using the embedded interpreter.")]
+    public string? Exec  { get; set; }
+}

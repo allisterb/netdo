@@ -9,7 +9,13 @@ using Jint;
 using Spectre.Console;
 
 public class JSInterp : Runtime
-{    
+{
+    protected readonly static Markup infoHeader = new Markup(Markup.Escape("info"), new Style(foreground: Color.White, background: Color.LightGreen));
+
+    protected readonly static Style infoStyle = new Style(foreground: Color.White);
+
+    protected static string LogTime => "[" + DateTime.Now.ToLongTimeString() + "] ";
+
     public static string[] ExtractJSFromMarkdown(string src)
     {
         var matches = Regex.Matches(src, @"```javascript\s+(.*?)\s+```", RegexOptions.Singleline);
@@ -25,8 +31,9 @@ public class JSInterp : Runtime
     {
         var s = o.ToString() ?? "";
         Info(s);
+        AnsiConsole.Write(LogTime);
         AnsiConsole.Write(infoHeader);
-        AnsiConsole.Write(new Markup(s + Environment.NewLine, infoStyle));
+        AnsiConsole.WriteLine(" " + s);
     }
 
     public static void JSError(object o)

@@ -2,6 +2,7 @@ namespace DigitalOcean.Cli;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,7 +32,7 @@ internal class Program : Runtime
             with.CaseInsensitiveEnumValues = true;
             with.HelpWriter = null;
         });
-        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions, AgentOptions, KBOptions, SpacesOptions>(args);
+        var result = parser.ParseArguments<ProjectOptions, WorkspaceOptions, ModelOptions, AgentOptions, KBOptions, SpacesOptions, TestOptions>(args);
         try
         {
             await result.MapResult(
@@ -41,6 +42,8 @@ internal class Program : Runtime
                 async (AgentOptions opts) => await HandleAgentArgs(opts),
                 async (KBOptions opts) => await HandleKBArgs(opts),
                 async (SpacesOptions opts) => await HandleSpacesArgs(opts),
+                async (TestOptions opts) => await HandleTestArgs(opts),
+
                 errs => HandleParseError(result, errs)
             );
         }
@@ -517,6 +520,14 @@ internal class Program : Runtime
                 table.AddRow(bucket);
             }
             AnsiConsole.Write(table);
+        }
+    }
+
+    static async Task HandleTestArgs(TestOptions options)
+    {
+        if (!string.IsNullOrWhiteSpace(options.Exec))
+        {
+            JSInterp.Execute(File.ReadAllText(options.Exec));
         }
     }
 
