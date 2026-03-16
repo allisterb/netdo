@@ -567,18 +567,31 @@ internal class Program : Runtime
             {
                 continue;
             }
-            AgentResponse? response = null; 
+            AgentResponse? _response = null; 
             await AnsiConsole.Status()
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync("Querying...", async ctx =>
                 {
-                    response = await agent.RunAsync([new ChatMessage(ChatRole.User, input)], session);
-                    if (response.Messages.Count > 0)
+                    _response = await agent.RunAsync([new ChatMessage(ChatRole.User, input)], session);
+                    if (_response.Messages.Count > 0)
                     {
                         ctx.Status("Evaluating...");
                     }
                 });
-                foreach (var message in response!.Messages)
+            AgentResponse response = _response!;
+            if (response.Usage is not null)
+            {
+                var usagePanel = new Panel($"Input tokens: {response.Usage.InputTokenCount}. Cached input tokens: {response.Usage.CachedInputTokenCount}. " +
+                    $"Output tokens: {response.Usage.OutputTokenCount}. Reasoning tokens: {response.Usage.ReasoningTokenCount}.")
+                    .Header("[bold]Usage[/]") 
+                    .BorderColor(Color.Purple)   // Optional: Sets the border color
+                    .RoundedBorder();
+                AnsiConsole.Write(usagePanel);
+            }
+
+
+
+            foreach (var message in response!.Messages)
                 {    
                         
                     if (message.Role == ChatRole.Assistant)
