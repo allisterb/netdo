@@ -548,14 +548,14 @@ internal class Program : Runtime
         var session = await agent.CreateSessionAsync();
         var editor = new LineEditor()
         {
-            Prompt = new LineEditorPrompt("[green]Donna>[/]", "."),                       
+            Prompt = new LineEditorPrompt("[green]Donna>[/]", "."),                                   
         };
         editor.KeyBindings.Add<Quit>(ConsoleKey.Escape);
         editor.KeyBindings.Add<Help>(ConsoleKey.F1);
         while (true)
         {
             AnsiConsole.MarkupLine("[bold]Enter your query or '/exit' or '/quit' to end. Press F1 for help.[/]\n");
-            var input = editor.ReadLine(Ct).GetAwaiter().GetResult();
+            var input = await editor.ReadLine(Ct);
             
             if (string.Equals(input, "/exit", StringComparison.OrdinalIgnoreCase) || 
                 string.Equals(input, "/quit", StringComparison.OrdinalIgnoreCase))
@@ -569,7 +569,7 @@ internal class Program : Runtime
             }
             AgentResponse? _response = null; 
             await AnsiConsole.Status()
-                .Spinner(Spinner.Known.Dots)
+                .Spinner(Spinner.Known.SimpleDots)
                 .StartAsync("Querying...", async ctx =>
                 {
                     _response = await agent.RunAsync([new ChatMessage(ChatRole.User, input)], session);
@@ -581,40 +581,36 @@ internal class Program : Runtime
             AgentResponse response = _response!;
             if (response.Usage is not null)
             {
-                var usagePanel = new Panel($"Input tokens: {response.Usage.InputTokenCount}. Cached input tokens: {response.Usage.CachedInputTokenCount}. " +
-                    $"Output tokens: {response.Usage.OutputTokenCount}. Reasoning tokens: {response.Usage.ReasoningTokenCount}.")
+                var usagePanel = new Panel($"Input tokens: {response.Usage.InputTokenCount}. " +
+                    $"Output tokens: {response.Usage.OutputTokenCount}. " + 
+                    $"Total tokens: {response.Usage.TotalTokenCount}.")
                     .Header("[bold]Usage[/]") 
-                    .BorderColor(Color.Purple)   // Optional: Sets the border color
+                    .HeaderAlignment(Justify.Right)
+                    .BorderColor(Color.Purple)
                     .RoundedBorder();
                 AnsiConsole.Write(usagePanel);
             }
-
-
-
             foreach (var message in response!.Messages)
-                {    
-                        
-                    if (message.Role == ChatRole.Assistant)
+            {                
+                if (message.Role == ChatRole.Assistant)
+                {
+                    AnsiConsole.Console.WriteMarkdown(message.Text);
+                    var codeBlocks = JSInterp.ExtractJSFromMarkdown(message.Text);
+                    if (codeBlocks.Length > 0)
                     {
-                        AnsiConsole.Console.WriteMarkdown(message.Text);
-                        var codeBlocks = JSInterp.ExtractJSFromMarkdown(message.Text);
-                        if (codeBlocks.Length > 0)
+                        AnsiConsole.MarkupLine("[yellow]Evaluating code...[/]");
+                        foreach (var code in codeBlocks)
                         {
-                                                          
-                            foreach (var code in codeBlocks)
-                            {
-                                JSInterp.Execute(code);
-                            }
-
-                               
+                            JSInterp.Execute(code);
                         }
-                       
-                    }
+                    }                                                 
                 }
-                
-            
+                       
+            }
         }
+                            
     }
+    
 
     static async Task<string?> GetWorkSpaceUuid(string name)
     {
@@ -654,7 +650,11 @@ internal class Program : Runtime
 
 public sealed class Quit : LineEditorCommand
 {
-    public override void Execute(LineEditorContext context) => Environment.Exit(0);
+    public override void Execute(LineEditorContext context)
+    {
+        Runtime.Cts.Cancel();
+        Environment.Exit(0);
+    }
 }
 
 public sealed class Help : LineEditorCommand
