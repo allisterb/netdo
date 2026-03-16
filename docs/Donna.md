@@ -12,10 +12,46 @@ Outputs an informational message to the Donna console.
 `error(message)`
 Outputs an error message to the Donna console.
 
+## Account
+
+`GetAccount()`
+Get the current account information. Returns an `AccountResponse` object.
+
+### Account Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "account": {
+      "type": "object",
+      "properties": {
+        "droplet_limit": { "type": "integer" },
+        "floating_ip_limit": { "type": "integer" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "uuid": { "type": "string" },
+        "email_verified": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["active", "warning", "locked"] },
+        "status_message": { "type": "string" }
+      }
+    }
+  }
+}
+```
+
 ## Billing
 
 `GetBalance()`
 Get the current balance for the account. Returns a `Balance` object.
+
+`ListBillingHistory()`
+Get current user account billing history entry. Returns a `BillingHistoryResponse` object.
+
+`ListInvoices()`
+Retrieve a list of all invoices for the current customer. Returns an `InvoicesResponse` object.
+
+`GetInvoice(uuid)`
+Retrieve an invoice summary by UUID. Returns an `InvoiceSummary` object.
 
 ### Balance Schema
 ```json
@@ -26,6 +62,89 @@ Get the current balance for the account. Returns a `Balance` object.
     "account_balance": { "type": "string", "description": "Current balance of the customer's most recent billing activity." },
     "month_to_date_usage": { "type": "string", "description": "Amount used in the current billing period." },
     "generated_at": { "type": "string", "format": "date-time", "description": "The time at which balances were most recently generated." }
+  }
+}
+```
+
+### BillingHistory Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "billing_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "amount": { "type": "string" },
+          "invoice_id": { "type": "string" },
+          "invoice_uuid": { "type": "string" },
+          "date": { "type": "string", "format": "date-time" },
+          "type": { "type": "string" }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer" }
+      }
+    }
+  }
+}
+```
+
+### InvoicesResponse Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "invoices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "invoice_uuid": { "type": "string" },
+          "invoice_id": { "type": "string" },
+          "amount": { "type": "string" },
+          "invoice_period": { "type": "string" },
+          "updated_at": { "type": "string" }
+        }
+      }
+    },
+    "invoice_preview": {
+      "type": "object",
+      "properties": {
+        "invoice_uuid": { "type": "string" },
+        "invoice_id": { "type": "string" },
+        "amount": { "type": "string" },
+        "invoice_period": { "type": "string" },
+        "updated_at": { "type": "string" }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer" }
+      }
+    }
+  }
+}
+```
+
+### InvoiceSummary Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "invoice_uuid": { "type": "string" },
+    "invoice_id": { "type": "string" },
+    "billing_period": { "type": "string" },
+    "amount": { "type": "string" },
+    "user_name": { "type": "string" },
+    "user_company": { "type": "string" },
+    "user_email": { "type": "string" }
   }
 }
 ```

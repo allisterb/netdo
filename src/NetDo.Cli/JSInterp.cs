@@ -7,6 +7,8 @@ using System.Text.RegularExpressions;
 
 using Jint;
 using Spectre.Console;
+using NTokenizers.Extensions.Spectre.Console;
+using NTokenizers.Extensions.Spectre.Console.Styles;
 
 public class JSInterp : Runtime
 {
@@ -33,7 +35,23 @@ public class JSInterp : Runtime
         Info(s);
         AnsiConsole.Write(LogTime);
         AnsiConsole.Write(infoHeader);
-        AnsiConsole.WriteLine(" " + s);
+        AnsiConsole.Write(" ");
+        WriteObject(o);
+    }
+
+    public static void WriteObject(object o)
+    {
+        switch (o)
+        {
+            case string s:
+                AnsiConsole.WriteLine(s);
+                break;
+
+            default:
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(o);
+                AnsiConsole.Console.WriteJson(json, JsonStyles.Default);
+                break;
+        }
     }
 
     public static void JSError(object o)

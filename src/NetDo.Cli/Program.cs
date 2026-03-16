@@ -13,6 +13,7 @@ using Microsoft.Extensions.AI;
 
 using DigitalOcean.Api;
 using DigitalOcean.Gradient;
+using NTokenizers.Extensions.Spectre.Console;
 
 internal class Program : Runtime
 {
@@ -544,7 +545,7 @@ internal class Program : Runtime
         var agent = new Agent("37e2d5f9-183e-11f1-b074-4e013e2ddde4");
         var session = await agent.CreateSessionAsync();
         
-        AnsiConsole.MarkupLine("[bold]Donna agent session started. Type '/exit' or '/quit' to end.[/]");
+        AnsiConsole.MarkupLine("[bold]Donna agent session started. Type '/exit' or '/quit' to end.[/]\n");
 
         while (true)
         {
@@ -567,12 +568,12 @@ internal class Program : Runtime
             {
                 if (message.Role == ChatRole.Assistant)
                 {
-                    AnsiConsole.MarkupLine(message.Text);
+                    AnsiConsole.Console.WriteMarkdown(message.Text);
 
                     var codeBlocks = JSInterp.ExtractJSFromMarkdown(message.Text);
                     foreach (var code in codeBlocks)
                     {
-                        AnsiConsole.MarkupLine("[bold yellow]Executing Donna JavaScript...[/]");
+                        AnsiConsole.MarkupLine("[bold green]Executing Donna JavaScript...[/]");
                         JSInterp.Execute(code);
                     }
                 }

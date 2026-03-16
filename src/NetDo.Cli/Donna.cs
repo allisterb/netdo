@@ -10,6 +10,35 @@ public class DonnaApi
 {
     #region Methods
     /// <summary>
+    /// Retrieve the balances on the current customer's account.
+    /// </summary>
+    /// <returns></returns>
+    public Balance? GetBalance() => client.Balance_getAsync().GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Get current user account billing history entry.
+    /// </summary>
+    /// <returns></returns>
+    public Response21? ListBillingHistory() => client.BillingHistory_listAsync().GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Get current user account information.
+    /// </summary>
+    /// <returns></returns>
+    public Response3? GetAccount() => client.Account_getAsync().GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Retrieve a list of all invoices for the current customer.
+    /// </summary>
+    /// <returns></returns>
+    public Response22? ListInvoices() => client.Invoices_listAsync(null, null).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Retrieve an invoice s.
+    /// </summary>
+    /// <returns></returns>
+    public Invoice_summary? GetInvoice(string uuid) => client.Invoices_get_summaryByUUIDAsync(uuid).GetAwaiter().GetResult();
+    /// <summary>
     /// List Agents
     /// </summary>
     /// <returns></returns>
@@ -38,13 +67,7 @@ public class DonnaApi
     /// List Available Models
     /// </summary>
     /// <returns></returns>
-    public ApiModelPublic[]? ListModels() => client.Genai_list_modelsAsync(null, null, null, null).GetAwaiter().GetResult()?.Models?.ToArray();
-
-    /// <summary>
-    /// Get the current balance for the account.
-    /// </summary>
-    /// <returns></returns>
-    public Balance? GetBalance() => client.Balance_getAsync().GetAwaiter().GetResult();
+    public ApiModelPublic[]? ListModels() => client.Genai_list_modelsAsync(null, null, null, null).GetAwaiter().GetResult()?.Models?.ToArray();    
     #endregion
 
     #region Fields
