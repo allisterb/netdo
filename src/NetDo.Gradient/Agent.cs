@@ -35,46 +35,31 @@ public class Agent : AIAgent
         => this.aiAgent.RunStreamingAsync(messages, session, options, cancellationToken);
 
     protected override ValueTask<JsonElement> SerializeSessionCoreAsync(AgentSession session, JsonSerializerOptions? jsonSerializerOptions = null, CancellationToken cancellationToken = default)
-    {
-        if (session is not DurableAgentSession durableSession)
-        {
-            throw new ArgumentException("Session must be of type DurableAgentSession.");
-        }       
-        durableSession.VersionId++;
-        var json = JsonSerializer.SerializeToUtf8Bytes(durableSession, jsonSerializerOptions);        
-        return ValueTask.FromResult(JsonSerializer.SerializeToElement(durableSession, jsonSerializerOptions));
-    }
+        => this.aiAgent.SerializeSessionAsync(session, jsonSerializerOptions, cancellationToken);   
 
-    protected override async ValueTask<AgentSession> DeserializeSessionCoreAsync(JsonElement serializedState, JsonSerializerOptions? jsonSerializerOptions = null, CancellationToken cancellationToken = default)
-    {
-        return serializedState.Deserialize<DurableAgentSession>(jsonSerializerOptions) ?? throw new Exception("Could not deserialize session");        
-    }
-
+    protected override ValueTask<AgentSession> DeserializeSessionCoreAsync(JsonElement serializedState, JsonSerializerOptions? jsonSerializerOptions = null, CancellationToken cancellationToken = default)
+        => this.aiAgent.DeserializeSessionAsync(serializedState, jsonSerializerOptions, cancellationToken); 
 
     protected async Task SaveSessionAsync(AgentSession session, JsonSerializerOptions? jsonSerializerOptions = null, CancellationToken cancellationToken = default)
     {
-        if (session is not DurableAgentSession durableSession)
-        {
-            throw new ArgumentException("Session must be of type DurableAgentSession.");
-        }
         EnsureSpacesClient();
-        durableSession.VersionId++;
-        var json = JsonSerializer.SerializeToUtf8Bytes(durableSession, jsonSerializerOptions);
-        await this.spacesClient!.PutObjectAsync(this.sessionBucket!, durableSession.Id, json);                
+        var id = Guid.NewGuid().ToString();
+        session.StateBag.SetValue("DOId", id);
+        var json = JsonSerializer.SerializeToUtf8Bytes(session, jsonSerializerOptions);
+        await this.spacesClient!.PutObjectAsync(this.sessionBucket!, id, json);                
     }
 
     protected async ValueTask<AgentSession> RestoreSessionAsync(string sessionid, JsonSerializerOptions? jsonSerializerOptions = null, CancellationToken cancellationToken = default)
     {
         EnsureSpacesClient();
         var json = await this.spacesClient!.GetObjectAsync(this.sessionBucket!, sessionid);
-        var durableSession = JsonSerializer.Deserialize<DurableAgentSession>(json, jsonSerializerOptions);
-        return durableSession ?? throw new InvalidOperationException("Failed to deserialize session.");
+        var session = JsonSerializer.Deserialize<AgentSession>(json, jsonSerializerOptions);
+        return session ?? throw new InvalidOperationException("Failed to deserialize session.");
     }
 
     protected void EnsureSpacesClient()
     {
         if (this.spacesClient != null) return;
-
         var endpoint = Environment.GetEnvironmentVariable("DIGITALOCEAN_SPACES_ENDPOINT") ?? throw new InvalidOperationException("DIGITALOCEAN_SPACES_ENDPOINT not set.");
         var accessKey = Environment.GetEnvironmentVariable("DIGITALOCEAN_SPACES_KEY_ID") ?? throw new InvalidOperationException("DIGITALOCEAN_SPACES_KEY_ID not set.");
         var secretKey = Environment.GetEnvironmentVariable("DIGITALOCEAN_SPACES_KEY_SECRET") ?? throw new InvalidOperationException("DIGITALOCEAN_SPACES_KEY_SECRET not set.");
@@ -91,12 +76,4 @@ public class Agent : AIAgent
     protected SpacesClient? spacesClient;
     protected string? sessionBucket;
     #endregion
-}
-
-public class DurableAgentSession : AgentSession
-{
-    public string Id { get; set; } = Guid.NewGuid().ToString();
-
-    public long VersionId { get; set; } = 0;
-
 }

@@ -35,11 +35,12 @@ public class DurableSessionTests : TestsRuntime
         }
 
         var agent = new Agent("37e2d5f9-183e-11f1-b074-4e013e2ddde4");
-        var session = (DurableAgentSession) await agent.CreateSessionAsync();
+        var session = await agent.CreateSessionAsync();
 
         // 1. Serialize using public method
         var serializedState = await agent.SerializeSessionAsync(session);
-        Assert.Equal(session.Id, serializedState.GetProperty("Id").GetString());
+        var id = session.StateBag.GetValue<string>("Id");
+        Assert.Equal(id, serializedState.GetProperty("Id").GetString());
         Assert.Equal(1, serializedState.GetProperty("VersionId").GetInt64());
         
 
