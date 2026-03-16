@@ -4,10 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using DigitalOcean.Api;
 using DigitalOcean.Gradient;
 
 public class AgentTests : TestsRuntime
 {
+    
     [Fact]
     public async Task CanCreateAgent()
     {

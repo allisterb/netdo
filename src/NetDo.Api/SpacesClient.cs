@@ -47,7 +47,7 @@ public class SpacesClient : Runtime
         return ms.ToArray();
     }
 
-    public async Task<string?> PutObjectAsync(string bucketName, string key, byte[] content, string contentType = "application/json")
+    public async Task PutObjectAsync(string bucketName, string key, byte[] content, string contentType = "application/json")
     {
         using var op = Begin("Putting object {0} in bucket {1}", key, bucketName);
         using var ms = new MemoryStream(content);
@@ -61,7 +61,7 @@ public class SpacesClient : Runtime
 
         var response = await this.s3Client.PutObjectAsync(request);
         op.Complete();
-        return response.VersionId;
+        
     }
        
     #endregion
