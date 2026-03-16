@@ -12,6 +12,15 @@ Outputs an informational message to the Donna console.
 `error(message)`
 Outputs an error message to the Donna console.
 
+`confirm(message)`
+Displays a confirmation dialog with the specified message. Returns `true` if the user confirms, `false` otherwise.
+
+`ask(prompt)`
+Prompts the user for a text input with the specified prompt string. Returns the entered string.
+
+`select(title, choices)`
+Displays a selection prompt with a title and an array of choice strings. Returns the string selected by the user.
+
 ## Account
 
 `GetAccount()`

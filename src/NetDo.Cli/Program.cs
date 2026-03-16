@@ -14,6 +14,7 @@ using Microsoft.Extensions.AI;
 using DigitalOcean.Api;
 using DigitalOcean.Gradient;
 using NTokenizers.Extensions.Spectre.Console;
+using RadLine;
 
 internal class Program : Runtime
 {
@@ -544,12 +545,16 @@ internal class Program : Runtime
     {
         var agent = new Agent("37e2d5f9-183e-11f1-b074-4e013e2ddde4");
         var session = await agent.CreateSessionAsync();
-        
-        AnsiConsole.MarkupLine("[bold]Donna agent session started. Type '/exit' or '/quit' to end.[/]\n");
-
+        var editor = new LineEditor()
+        {
+            Prompt = new LineEditorPrompt("[green]Donna>[/]", "."),                       
+        };
+        editor.KeyBindings.Add<Quit>(ConsoleKey.Escape);
+        editor.KeyBindings.Add<Help>(ConsoleKey.F1);
         while (true)
         {
-            var input = AnsiConsole.Ask<string>("[bold green]Donna>[/] ");
+            AnsiConsole.MarkupLine("[bold]Enter your query or '/exit' or '/quit' to end. Press F1 for help.[/]\n");
+            var input = editor.ReadLine(Ct).GetAwaiter().GetResult();
             
             if (string.Equals(input, "/exit", StringComparison.OrdinalIgnoreCase) || 
                 string.Equals(input, "/quit", StringComparison.OrdinalIgnoreCase))
@@ -605,7 +610,7 @@ internal class Program : Runtime
 
     static void PrintLogo()
     {
-        AnsiConsole.Write(new FigletText("Digital Ocean").Color(Color.Blue));
+        AnsiConsole.Write(new FigletText("Digital Ocean\n").Color(Color.Blue));        
     }
 
     static void WriteDigitalOceanErrorException(DigitalOceanApiException<Api.Error> exception)
@@ -615,4 +620,17 @@ internal class Program : Runtime
     }
 
     static DigitalOceanClient client;
+}
+
+public sealed class Quit : LineEditorCommand
+{
+    public override void Execute(LineEditorContext context) => Environment.Exit(0);
+}
+
+public sealed class Help : LineEditorCommand
+{
+    public override void Execute(LineEditorContext context)
+    {
+
+    }
 }

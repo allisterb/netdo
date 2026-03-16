@@ -69,7 +69,8 @@ public class JSInterp : Runtime
         var engine = new Engine(jsoptions)
             .SetValue("log", JSInfo)
             .SetValue("error", JSError)
-            .SetValue("confim", Confirm)
+            .SetValue("confirm", Confirm)
+            .SetValue("ask", Ask)
             .SetValue("select", Select)
             .SetValue("api", new DonnaApi());
         engine.Execute(src);

@@ -26,7 +26,7 @@ public class Agent : AIAgent
     #endregion
 
     #region Methods
-    protected override ValueTask<AgentSession> CreateSessionCoreAsync(CancellationToken cancellationToken) => ValueTask.FromResult<AgentSession>(new DurableAgentSession());
+    protected override ValueTask<AgentSession> CreateSessionCoreAsync(CancellationToken cancellationToken) => this.aiAgent.CreateSessionAsync(cancellationToken); //ValueTask.FromResult<AgentSession>(new DurableAgentSession());
         
     protected override Task<AgentResponse> RunCoreAsync(IEnumerable<ChatMessage> messages, AgentSession? session = null, AgentRunOptions? options = null, CancellationToken cancellationToken = default)    
         => this.aiAgent.RunAsync(messages, session, options, cancellationToken);
