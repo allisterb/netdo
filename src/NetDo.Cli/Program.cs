@@ -15,6 +15,7 @@ using DigitalOcean.Api;
 using DigitalOcean.Gradient;
 using NTokenizers.Extensions.Spectre.Console;
 using RadLine;
+using Microsoft.Agents.AI;
 
 internal class Program : Runtime
 {
@@ -566,23 +567,37 @@ internal class Program : Runtime
             {
                 continue;
             }
+            AgentResponse? response;
 
-            var response = await agent.RunAsync(new ChatMessage[] { new ChatMessage(ChatRole.User, input) }, session);
-            
-            foreach (var message in response.Messages)
-            {
-                if (message.Role == ChatRole.Assistant)
+            await AnsiConsole.Status()
+                .Spinner(Spinner.Known.Dots)
+                .StartAsync("Querying...", async (ctx) =>
                 {
-                    AnsiConsole.Console.WriteMarkdown(message.Text);
-
-                    var codeBlocks = JSInterp.ExtractJSFromMarkdown(message.Text);
-                    foreach (var code in codeBlocks)
+                    response = await agent.RunAsync(new ChatMessage[] { new ChatMessage(ChatRole.User, input) }, session);
+                    
+                    foreach (var message in response.Messages)
                     {
-                        AnsiConsole.MarkupLine("[bold green]Executing Donna JavaScript...[/]");
-                        JSInterp.Execute(code);
+                        
+                        ctx.Status("Evaluating...");
+                        if (message.Role == ChatRole.Assistant)
+                        {
+                            AnsiConsole.Console.WriteLine(message.Text);
+                            var codeBlocks = JSInterp.ExtractJSFromMarkdown(message.Text);
+                            if (codeBlocks.Length > 0)
+                            {
+                                ctx.Status("Executing code...");                                
+                                foreach (var code in codeBlocks)
+                                {
+                                    JSInterp.Execute(code);
+                                }
+
+                               
+                            }
+                            ctx.Status("Completed");
+                        }
                     }
-                }
-            }
+                });
+            
         }
     }
 
