@@ -69,7 +69,15 @@ public class JSInterp : Runtime
         var engine = new Engine(jsoptions)
             .SetValue("log", JSInfo)
             .SetValue("error", JSError)
+            .SetValue("confim", Confirm)
+            .SetValue("select", Select)
             .SetValue("api", new DonnaApi());
         engine.Execute(src);
     }
+
+    public static bool Confirm(string msg) => AnsiConsole.Confirm(msg);
+
+    public static string Ask(string prompt) => AnsiConsole.Ask<string>(prompt);
+
+    public static string Select(string title, params string[] choices) => AnsiConsole.Prompt(new SelectionPrompt<string>().Title(title).AddChoices(choices));
 }
