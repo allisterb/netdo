@@ -55,9 +55,8 @@ public class JSInterp : Runtime
 
     public static void Execute(string src)
     {
-        var jsoptions = new Jint.Options();
+        var jsoptions = new Jint.Options();        
         jsoptions.Host.StringCompilationAllowed = false;
-
         var engine = new Engine(jsoptions)
             .SetValue("log", JSInfo)
             .SetValue("error", JSError)
