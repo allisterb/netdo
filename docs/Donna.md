@@ -236,6 +236,115 @@ The `ApiAgent` object includes all properties of `ApiAgentPublic` plus additiona
 }
 ```
 
+## Apps
+
+`ListApps()`
+List all apps. Returns an array of `App` objects.
+
+`GetAppById(appid)`
+Retrieve an existing app by its ID. Returns an `App` object.
+
+`GetAppHealth(appid)`
+Retrieve the health status of an app. Returns an `App_health` object.
+
+### App Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "active_deployment": { "type": "object" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "default_ingress": { "type": "string" },
+    "domains": { "type": "array", "items": { "type": "object" } },
+    "id": { "type": "string" },
+    "in_progress_deployment": { "type": "object" },
+    "last_deployment_created_at": { "type": "string", "format": "date-time" },
+    "live_domain": { "type": "string" },
+    "live_url": { "type": "string" },
+    "live_url_base": { "type": "string" },
+    "owner_uuid": { "type": "string" },
+    "pending_deployment": { "type": "object" },
+    "project_id": { "type": "string" },
+    "region": { "type": "object" },
+    "spec": { "type": "object" },
+    "tier_slug": { "type": "string" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}
+```
+
+### AppHealth Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "components": { "type": "array", "items": { "type": "object" } },
+    "functions_components": { "type": "array", "items": { "type": "object" } }
+  }
+}
+```
+
+## Databases
+
+`ListDatabaseClusters()`
+List all database clusters. Returns an array of `Database_cluster_read` objects.
+
+`ListOpenSearchIndexes(guid)`
+List indexes for an OpenSearch cluster. Returns an array of `Opensearch_index` objects.
+
+`GetOpenSearchIndex(guid)`
+Retrieve an existing database cluster (named as GetOpenSearchIndex). Returns a `Database_cluster_read` object.
+
+`UpdateDatabaseClusterRegion(guid, region)`
+Migrate a database cluster to a new region. Returns nothing.
+
+### DatabaseClusterRead Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "name": { "type": "string" },
+    "engine": { "type": "string" },
+    "version": { "type": "string" },
+    "semantic_version": { "type": "string" },
+    "num_nodes": { "type": "integer" },
+    "size": { "type": "string" },
+    "region": { "type": "string" },
+    "status": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "private_network_uuid": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "db_names": { "type": "array", "items": { "type": "string" } },
+    "connection": { "type": "object" },
+    "private_connection": { "type": "object" },
+    "standby_connection": { "type": "object" },
+    "standby_private_connection": { "type": "object" },
+    "users": { "type": "array", "items": { "type": "object" } },
+    "maintenance_window": { "type": "object" },
+    "project_id": { "type": "string", "format": "uuid" },
+    "rules": { "type": "array", "items": { "type": "object" } },
+    "storage_size_mib": { "type": "integer" }
+  }
+}
+```
+
+### OpensearchIndex Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "index_name": { "type": "string" },
+    "number_of_shards": { "type": "integer" },
+    "number_of_replicas": { "type": "integer" },
+    "size": { "type": "integer" },
+    "created_time": { "type": "string", "format": "date-time" },
+    "status": { "type": "string" },
+    "health": { "type": "string" }
+  }
+}
+```
+
 ## Project Management
 
 `ListProjects()`

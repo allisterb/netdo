@@ -40,7 +40,7 @@ public class JSInterp : Runtime
 
             default:
                 var json = Newtonsoft.Json.JsonConvert.SerializeObject(o);
-                AnsiConsole.Console.WriteJson(json, JsonStyles.Default);
+                AnsiConsole.Console.WriteJson(json);
                 break;
         }
         AnsiConsole.WriteLine(Environment.NewLine);

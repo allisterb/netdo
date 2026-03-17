@@ -1,7 +1,7 @@
 ﻿namespace DigitalOcean.Cli;
 
+using Spectre.Console;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 using DigitalOcean.Api;
@@ -9,7 +9,6 @@ using DigitalOcean.Api;
 public class DonnaApi
 {
     #region Methods
-
     #region Account and Billing
     /// <summary>
     /// Retrieve the balances on the current customer's account.
@@ -76,23 +75,79 @@ public class DonnaApi
     #endregion
 
     #region Apps
+    /// <summary>
+    /// List All Apps
+    /// </summary>
+    /// <returns></returns>
     public App[]? ListApps() => client.Apps_listAsync(null, null, null).GetAwaiter().GetResult()?.Apps?.ToArray();
 
-    public App? GetAppById(string id) => client.Apps_getAsync(id, null).GetAwaiter().GetResult().App;
-
-    public App? GetAppByName(string name) => client.Apps_getAsync("", name).GetAwaiter().GetResult().App;
-
-    public App_health? GetAppHealth(string id) => client.Apps_get_healthAsync(id).GetAwaiter().GetResult().App_health;
+    /// <summary>
+    /// Retrieve an existing app by app id
+    /// </summary>
+    /// <param name="appid"></param>
+    /// <returns></returns>
+    public App? GetAppById(string appid) => client.Apps_getAsync(appid, null).GetAwaiter().GetResult().App;
+   
+    /// <summary>
+    /// Retrieve App Health
+    /// </summary>
+    /// <param name="appid"></param>
+    /// <returns></returns>
+    public App_health? GetAppHealth(string appid) => client.Apps_get_healthAsync(appid).GetAwaiter().GetResult().App_health;
     #endregion
 
     #region Databases
+    /// <summary>
+    /// List All Database Clusters
+    /// </summary>
+    /// <returns></returns>
     public Database_cluster_read[]? ListDatabaseClusters() => client.Databases_list_clustersAsync(null).GetAwaiter().GetResult().Databases?.ToArray();
     
-    public Opensearch_index[]? ListOpenSearchIndexes(string id) => client.Databases_list_opeasearch_indexesAsync(new Guid(id)).GetAwaiter().GetResult()?.Indexes?.ToArray();
+    /// <summary>
+    /// List Indexes for an OpenSearch cluster
+    /// </summary>
+    /// <param name="guid"></param>
+    /// <returns></returns>
+    public Opensearch_index[]? ListOpenSearchIndexes(string guid) => client.Databases_list_opeasearch_indexesAsync(new Guid(guid)).GetAwaiter().GetResult()?.Indexes?.ToArray();
 
-    public Database_cluster_read? GetOpenSearchIndex(string id) => client.Databases_get_clusterAsync(new Guid(id)).GetAwaiter().GetResult()?.Database;
+    /// <summary>
+    /// Retrieve an existing database cluster
+    /// </summary>
+    /// <param name="guid"></param>
+    /// <returns></returns>
+    public Database_cluster_read? GetOpenSearchIndex(string guid) => client.Databases_get_clusterAsync(new Guid(guid)).GetAwaiter().GetResult()?.Database;
+
+    /// <summary>
+    /// Migrate a database cluster to a new region
+    /// </summary>
+    /// <param name="guid"></param>
+    /// <param name="region"></param>
+    public void UpdateDatabaseClusterRegion(string guid, string region) => Confirm(() => client.Databases_update_regionAsync(new Guid(guid), new Body5(region)).GetAwaiter().GetResult(), 
+        $"Migrate database cluster {guid} to region {region}.");
     #endregion
 
+    #region General
+    protected static void Confirm(System.Action method, string message)
+    {
+        if (JSInterp.Confirm("[red] Warning! This operation can potentially cause data loss. Confirm the following operation:[/] " + message))
+        {
+            method.Invoke();
+            AnsiConsole.WriteLine("Operation complete.");
+        }
+    }
+
+    protected static T? Confirm<T>(Func<T> method, string message)
+    {
+        if (JSInterp.Confirm("[red] Warning! This operation can potentially cause data loss. Confirm the following operation:[/] " + message))
+        {
+            return method.Invoke();
+        }
+        else
+        {
+            return default;
+        }
+    }
+    #endregion
     #endregion
 
     #region Fields
