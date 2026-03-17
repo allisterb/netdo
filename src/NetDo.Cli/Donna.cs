@@ -9,6 +9,8 @@ using DigitalOcean.Api;
 public class DonnaApi
 {
     #region Methods
+
+    #region Account and Billing
     /// <summary>
     /// Retrieve the balances on the current customer's account.
     /// </summary>
@@ -38,6 +40,10 @@ public class DonnaApi
     /// </summary>
     /// <returns></returns>
     public Invoice_summary? GetInvoice(string uuid) => client.Invoices_get_summaryByUUIDAsync(uuid).GetAwaiter().GetResult();
+    #endregion
+
+    #region Gradient AI
+
     /// <summary>
     /// List Agents
     /// </summary>
@@ -67,7 +73,9 @@ public class DonnaApi
     /// List Available Models
     /// </summary>
     /// <returns></returns>
-    public ApiModelPublic[]? ListModels() => client.Genai_list_modelsAsync(null, null, null, null).GetAwaiter().GetResult()?.Models?.ToArray();    
+    public ApiModelPublic[]? ListModels() => client.Genai_list_modelsAsync(null, null, null, null).GetAwaiter().GetResult()?.Models?.ToArray();
+    #endregion
+
     #endregion
 
     #region Fields

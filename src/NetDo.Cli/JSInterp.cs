@@ -31,20 +31,11 @@ public class JSInterp : Runtime
 
     public static void JSInfo(object o)
     {
-        var s = o.ToString() ?? "";
-        Info(s);
-        AnsiConsole.Write(LogTime);
-        AnsiConsole.Write(infoHeader);
-        AnsiConsole.Write(" ");
-        WriteObject(o);
-    }
-
-    public static void WriteObject(object o)
-    {
+        Info(o.ToString() ?? "");
         switch (o)
         {
-            case string s:
-                AnsiConsole.WriteLine(s);
+            case string str:
+                AnsiConsole.WriteLine(str);
                 break;
 
             default:
@@ -52,6 +43,7 @@ public class JSInterp : Runtime
                 AnsiConsole.Console.WriteJson(json, JsonStyles.Default);
                 break;
         }
+        AnsiConsole.WriteLine(Environment.NewLine);
     }
 
     public static void JSError(object o)
@@ -72,6 +64,7 @@ public class JSInterp : Runtime
             .SetValue("confirm", Confirm)
             .SetValue("ask", Ask)
             .SetValue("select", Select)
+            .SetValue("table", DrawTable)
             .SetValue("api", new DonnaApi());
         engine.Execute(src);
     }
@@ -81,4 +74,25 @@ public class JSInterp : Runtime
     public static string Ask(string prompt) => AnsiConsole.Ask<string>(prompt);
 
     public static string Select(string title, params string[] choices) => AnsiConsole.Prompt(new SelectionPrompt<string>().Title(title).AddChoices(choices));
+
+    public static void DrawTable(string[] headers, string[][] dataRows)
+    {
+        var table = new Table();
+        var headerStyle = new Style(foreground: Color.White, decoration: Decoration.Bold | Decoration.Underline);
+        foreach (var header in headers)
+        {
+            table.AddColumn(new TableColumn(new Markup(header, headerStyle)).Alignment(Justify.Center));
+        }
+        foreach (var row in dataRows)
+        {
+            if (row.Length != headers.Length)
+            {
+                AnsiConsole.MarkupLine($"[yellow]Warning: Skipping a row due to column count mismatch.[/]");
+                continue;
+            }
+            table.AddRow(row);
+        }
+
+        AnsiConsole.Write(table);
+    }
 }

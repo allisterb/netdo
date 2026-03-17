@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>DigitalOcean.Gradient</RootNamespace>
+  <NoWarn>MEAI001;</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

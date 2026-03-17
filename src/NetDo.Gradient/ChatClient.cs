@@ -1,12 +1,10 @@
 namespace DigitalOcean.Gradient;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Microsoft.Extensions.AI;
+using Microsoft.Agents.AI;
+
 using OpenAI;
 using DigitalOcean.Api;
 
@@ -56,7 +54,7 @@ public class ChatClient : DelegatingChatClient
     {
         var endpoint = agent.Deployment?.Url ?? throw new ArgumentNullException($"The agent {agent.Uuid} ({agent.Name}) deployment field or deployment url is null.");
         var apikey = Environment.GetEnvironmentVariable("GRADIENT_AGENT_API_TOKEN") ?? throw new ArgumentNullException("The GRADIENT_AGENT_API_TOKEN environment variable is not set.");
-        
+       
         return 
             new OpenAIClient(new System.ClientModel.ApiKeyCredential(apikey), new OpenAIClientOptions() 
             { 
@@ -71,13 +69,9 @@ public class ChatClient : DelegatingChatClient
             })
             .GetChatClient(agent.Model!.Inference_name)            
             .AsIChatClient()
-            .AsBuilder()            
-            .UseLogging(Runtime.loggerFactory)           
-            .UseFunctionInvocation(Runtime.loggerFactory, f =>
-            {
-                f.AdditionalTools = tools;               
-                f.TerminateOnUnknownCalls = false;   
-            })            
+            .AsBuilder()
+            .UseLogging(Runtime.loggerFactory)
+            .UseChatReducer(new MessageCountingChatReducer(10))
             .Build();                
     }
     #endregion

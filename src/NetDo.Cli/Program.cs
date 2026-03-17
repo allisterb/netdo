@@ -548,7 +548,7 @@ internal class Program : Runtime
         var session = await agent.CreateSessionAsync();
         var editor = new LineEditor()
         {
-            Prompt = new LineEditorPrompt("[green]Donna>[/]", "."),                                   
+            Prompt = new LineEditorPrompt("[blue]Donna>[/]", "."),                                   
         };
         editor.KeyBindings.Add<Quit>(ConsoleKey.Escape);
         editor.KeyBindings.Add<Help>(ConsoleKey.F1);
@@ -569,14 +569,10 @@ internal class Program : Runtime
             }
             AgentResponse? _response = null; 
             await AnsiConsole.Status()
-                .Spinner(Spinner.Known.SimpleDots)
+                .Spinner(Spinner.Known.Dots)
                 .StartAsync("Querying...", async ctx =>
                 {
                     _response = await agent.RunAsync([new ChatMessage(ChatRole.User, input)], session);
-                    if (_response.Messages.Count > 0)
-                    {
-                        ctx.Status("Evaluating...");
-                    }
                 });
             AgentResponse response = _response!;
             if (response.Usage is not null)
@@ -598,7 +594,7 @@ internal class Program : Runtime
                     var codeBlocks = JSInterp.ExtractJSFromMarkdown(message.Text);
                     if (codeBlocks.Length > 0)
                     {
-                        AnsiConsole.MarkupLine("[yellow]Evaluating code...[/]");
+                        AnsiConsole.MarkupLine("[yellow]Evaluating code...\n[/]");
                         foreach (var code in codeBlocks)
                         {
                             JSInterp.Execute(code);
