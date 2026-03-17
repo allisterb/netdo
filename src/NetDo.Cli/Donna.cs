@@ -43,7 +43,6 @@ public class DonnaApi
     #endregion
 
     #region Gradient AI
-
     /// <summary>
     /// List Agents
     /// </summary>
@@ -74,6 +73,24 @@ public class DonnaApi
     /// </summary>
     /// <returns></returns>
     public ApiModelPublic[]? ListModels() => client.Genai_list_modelsAsync(null, null, null, null).GetAwaiter().GetResult()?.Models?.ToArray();
+    #endregion
+
+    #region Apps
+    public App[]? ListApps() => client.Apps_listAsync(null, null, null).GetAwaiter().GetResult()?.Apps?.ToArray();
+
+    public App? GetAppById(string id) => client.Apps_getAsync(id, null).GetAwaiter().GetResult().App;
+
+    public App? GetAppByName(string name) => client.Apps_getAsync("", name).GetAwaiter().GetResult().App;
+
+    public App_health? GetAppHealth(string id) => client.Apps_get_healthAsync(id).GetAwaiter().GetResult().App_health;
+    #endregion
+
+    #region Databases
+    public Database_cluster_read[]? ListDatabaseClusters() => client.Databases_list_clustersAsync(null).GetAwaiter().GetResult().Databases?.ToArray();
+    
+    public Opensearch_index[]? ListOpenSearchIndexes(string id) => client.Databases_list_opeasearch_indexesAsync(new Guid(id)).GetAwaiter().GetResult()?.Indexes?.ToArray();
+
+    public Database_cluster_read? GetOpenSearchIndex(string id) => client.Databases_get_clusterAsync(new Guid(id)).GetAwaiter().GetResult()?.Database;
     #endregion
 
     #endregion
