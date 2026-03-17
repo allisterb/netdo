@@ -9,6 +9,7 @@ using Jint;
 using Spectre.Console;
 using NTokenizers.Extensions.Spectre.Console;
 using NTokenizers.Extensions.Spectre.Console.Styles;
+using System.Linq;
 
 public class JSInterp : Runtime
 {
@@ -74,7 +75,7 @@ public class JSInterp : Runtime
 
     public static string Select(string title, params string[] choices) => AnsiConsole.Prompt(new SelectionPrompt<string>().Title(title).AddChoices(choices));
 
-    public static void DrawTable(string[] headers, string[][] dataRows)
+    public static void DrawTable(string[] headers, object[][] dataRows)
     {
         var table = new Table();
         var headerStyle = new Style(foreground: Color.White, decoration: Decoration.Bold | Decoration.Underline);
@@ -89,7 +90,7 @@ public class JSInterp : Runtime
                 AnsiConsole.MarkupLine($"[yellow]Warning: Skipping a row due to column count mismatch.[/]");
                 continue;
             }
-            table.AddRow(row);
+            table.AddRow(row.Select(c => c.ToString() ?? "").ToArray());
         }
 
         AnsiConsole.Write(table);
