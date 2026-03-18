@@ -557,8 +557,7 @@ internal class Program : Runtime
         while (true)
         {
             AnsiConsole.MarkupLine("[bold]Enter your query or '/exit' or '/quit' to end. Press F1 for help.[/]\n");
-            var input = await editor.ReadLine(Ct);
-            
+            var input = await editor.ReadLine(Ct);            
             if (string.Equals(input, "/exit", StringComparison.OrdinalIgnoreCase) || 
                 string.Equals(input, "/quit", StringComparison.OrdinalIgnoreCase))
             {
@@ -572,41 +571,54 @@ internal class Program : Runtime
             {
                 editor.History.Add(input);
             }
-            AgentResponse? _response = null; 
-            await AnsiConsole.Status()
-                .Spinner(Spinner.Known.Dots)
-                .StartAsync("Querying...", async ctx =>
-                {
-                    _response = await agent.RunAsync([new ChatMessage(ChatRole.User, input)], session);
-                });
-            AgentResponse response = _response!;
-            if (response.Usage is not null)
+            AgentResponse? _response = null;
+            bool complete = false;
+            while (!complete)
             {
-                var usagePanel = new Panel($"Input tokens: {response.Usage.InputTokenCount}. " +
-                    $"Output tokens: {response.Usage.OutputTokenCount}. " + 
-                    $"Total tokens: {response.Usage.TotalTokenCount}.")
-                    .Header("[bold]Usage[/]") 
-                    .HeaderAlignment(Justify.Right)
-                    .BorderColor(Color.Purple)
-                    .RoundedBorder();
-                AnsiConsole.Write(usagePanel);
-            }
-            foreach (var message in response!.Messages)
-            {                
-                if (message.Role == ChatRole.Assistant)
-                {
-                    AnsiConsole.Console.WriteMarkdown(message.Text);
-                    var codeBlocks = JSInterp.ExtractJSFromMarkdown(message.Text);
-                    if (codeBlocks.Length > 0)
+                await AnsiConsole.Status()
+                    .Spinner(Spinner.Known.Dots)
+                    .StartAsync("Querying...", async ctx =>
                     {
-                        AnsiConsole.MarkupLine("[yellow]Evaluating code...\n[/]");
-                        foreach (var code in codeBlocks)
+                        _response = await agent.RunAsync([new ChatMessage(ChatRole.User, input)], session);
+                    });
+                AgentResponse response = _response!;
+                if (response.Usage is not null)
+                {
+                    var usagePanel = new Panel($"Input tokens: {response.Usage.InputTokenCount}. " +
+                        $"Output tokens: {response.Usage.OutputTokenCount}. " +
+                        $"Total tokens: {response.Usage.TotalTokenCount}.")
+                        .Header("[bold]Usage[/]")
+                        .HeaderAlignment(Justify.Right)
+                        .BorderColor(Color.Purple)
+                        .RoundedBorder();
+                    AnsiConsole.Write(usagePanel);
+                }
+                var message = response.Messages.Last();
+                AnsiConsole.Console.WriteMarkdown(message.Text);
+                var codeBlocks = JSInterp.ExtractJSFromMarkdown(message.Text);
+                if (codeBlocks.Length > 0)
+                {
+                    AnsiConsole.MarkupLine("[yellow]Evaluating code...\n[/]");
+                    bool error = false;
+                    foreach (var code in codeBlocks)
+                    {
+                        try
                         {
                             JSInterp.Execute(code);
                         }
-                    }                                                 
+                        catch (Jint.Runtime.JavaScriptException jse)
+                        {
+                            input = jse.GetJavaScriptErrorString();
+                            error = true;
+                            break;
+                        }
+                    }
+                    complete = !error;
                 }
-                       
+                else
+                {
+                    complete = true;
+                }
             }
         }
                             
