@@ -9,6 +9,7 @@ using DigitalOcean.Api;
 public class DonnaApi
 {
     #region Methods
+
     #region Account and Billing
     /// <summary>
     /// Retrieve the balances on the current customer's account.
@@ -72,6 +73,27 @@ public class DonnaApi
     /// </summary>
     /// <returns></returns>
     public ApiModelPublic[]? ListModels() => client.Genai_list_modelsAsync(null, null, null, null).GetAwaiter().GetResult()?.Models?.ToArray();
+
+    /// <summary>
+    /// List Knowledge Bases
+    /// </summary>
+    public ApiKnowledgeBase[]? ListKnowledgeBases => client.Genai_list_knowledge_basesAsync(null, null).GetAwaiter().GetResult()?.Knowledge_bases?.ToArray();
+
+    /// <summary>
+    /// Retrieve information about an existing knowledge base
+    /// </summary>
+    /// <param name="uuid"></param>
+    /// <returns></returns>
+    public ApiKnowledgeBase? GetKnowledgeBase(string uuid) => client.Genai_get_knowledge_baseAsync(uuid).GetAwaiter().GetResult()?.Knowledge_base;
+
+    /// <summary>
+    /// Detach a knowledge base from an agent
+    /// </summary>
+    /// <param name="agentuuiid">UUID of agent</param>
+    /// <param name="kbuuid">UUID of knowledge base</param>
+    /// <returns></returns>
+    public ApiAgent? DetachKnowledgeBaseFromAgent(string agentuuiid, string kbuuid) =>
+        Confirm(() => client.Genai_detach_knowledge_baseAsync(agentuuiid, kbuuid).GetAwaiter().GetResult().Agent, $"Detach the knowledge base {kbuuid} from agent {agentuuiid}");
     #endregion
 
     #region Apps
@@ -148,6 +170,7 @@ public class DonnaApi
         }
     }
     #endregion
+
     #endregion
 
     #region Fields
