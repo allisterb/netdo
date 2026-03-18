@@ -31,7 +31,7 @@ public class JSInterp : Runtime
 
     public static void JSInfo(object o)
     {
-        Info(o.ToString() ?? "");
+        Info(o?.ToString() ?? "");
         switch (o)
         {
             case string str:

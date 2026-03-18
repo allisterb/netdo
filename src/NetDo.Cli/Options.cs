@@ -117,21 +117,22 @@ public class AgentOptions : Options
 [Verb("kb", HelpText = "Display commands that manage DigitalOcean Agent Knowledge Bases.")]
 public class KBOptions : Options
 {
-// Subcommands
-[Option("list", Required = false, HelpText = "List all knowledge bases for agents.", SetName = "kb_options")]
-public bool List { get; set; }
+    // Subcommands
+    [Option("list", Required = false, HelpText = "List all knowledge bases for agents.", SetName = "kb_options")]
+    public bool List { get; set; }
 
-[Option("get", Required = false, HelpText = "Retrieves a Knowledge Base by its uuid.", SetName = "kb_options")]
-public string Get { get; set; } = string.Empty;
+    [Option("get", Required = false, HelpText = "Retrieves a Knowledge Base by its uuid.", SetName = "kb_options")]
+    public string Get { get; set; } = string.Empty;
 
-[Option("create", Required = false, HelpText = "Creates a knowledge base.", SetName = "kb_options")]
-public bool Create { get; set; }
+    [Option("create", Required = false, HelpText = "Creates a knowledge base.", SetName = "kb_options")]
+    public bool Create { get; set; }
 
-[Option("list-embedding-models", Required = false, HelpText = "List all available embedding models and their UUIDs.", SetName = "kb_options")]
-public bool ListEmbeddingModels { get; set; }
+    [Option("list-embedding-models", Required = false, HelpText = "List all available embedding models and their UUIDs.", SetName = "kb_options")]
+    public bool ListEmbeddingModels { get; set; }
 
-[Option("add-datasource", Required = false, HelpText = "Add one datasource for knowledge base.", SetName = "kb_options")]
-public bool AddDataSource { get; set; }
+    [Option("add-datasource", Required = false, HelpText = "Add one datasource for knowledge base.", SetName = "kb_options")]
+    public bool AddDataSource { get; set; }
+    
     [Option("delete-datasource", Required = false, HelpText = "Delete a datasource for knowledge base using its id.", SetName = "kb_options")]
     public string DeleteDataSource { get; set; } = string.Empty;
 
@@ -160,7 +161,6 @@ public bool AddDataSource { get; set; }
     [Option("uuid", Required = false, HelpText = "The UUID of the Knowledge Base.")]
     public string Uuid { get; set; } = string.Empty;
 
-    // Data source flags
     [Option("bucket-name", Required = false, HelpText = "The bucket name of data source from Spaces")]
     public string BucketName { get; set; } = string.Empty;
 
