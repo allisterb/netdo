@@ -85,13 +85,13 @@ public class JSInterp : Runtime
             table.AddColumn(new TableColumn(new Markup(header, headerStyle)).Alignment(Justify.Center));
         }
         foreach (var row in dataRows)
-        {
+        {            
             if (row.Length != headers.Length)
             {
                 AnsiConsole.MarkupLine($"[yellow]Warning: Skipping a row due to column count mismatch.[/]");
                 continue;
             }
-            table.AddRow(row.Select(c => c.ToString() ?? "").ToArray());
+            table.AddRow(row.Select(c => c?.ToString() ?? "").ToArray());
         }
 
         AnsiConsole.Write(table);

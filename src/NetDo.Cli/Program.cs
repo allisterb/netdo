@@ -633,6 +633,7 @@ internal class Program : Runtime
                     complete = true;
                 }
             }
+            AnsiConsole.WriteLine("");
         }
                             
     }
