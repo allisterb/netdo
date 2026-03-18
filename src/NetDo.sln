@@ -27,6 +27,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{12B671B0-C
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
 		..\docs\Donna.md = ..\docs\Donna.md
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{3EE70FD2-4755-46A7-BE34-03806E4CDB13}"
+	ProjectSection(SolutionItems) = preProject
+		..\build = ..\build
+		..\build.cmd = ..\build.cmd
+		..\netdo = ..\netdo
+		..\netdo.cmd = ..\netdo.cmd
 	EndProjectSection
 EndProject
 Global
