@@ -77,7 +77,7 @@ public class DonnaApi
     /// <summary>
     /// List Knowledge Bases
     /// </summary>
-    public ApiKnowledgeBase[]? ListKnowledgeBases => client.Genai_list_knowledge_basesAsync(null, null).GetAwaiter().GetResult()?.Knowledge_bases?.ToArray();
+    public ApiKnowledgeBase[]? ListKnowledgeBases() => client.Genai_list_knowledge_basesAsync(null, null).GetAwaiter().GetResult()?.Knowledge_bases?.ToArray();
 
     /// <summary>
     /// Retrieve information about an existing knowledge base
