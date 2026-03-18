@@ -552,6 +552,8 @@ internal class Program : Runtime
         };
         editor.KeyBindings.Add<Quit>(ConsoleKey.Escape);
         editor.KeyBindings.Add<Help>(ConsoleKey.F1);
+        editor.KeyBindings.Add<PreviousHistoryCommand>(ConsoleKey.UpArrow);
+        editor.KeyBindings.Add<NextHistoryCommand>(ConsoleKey.DownArrow);
         while (true)
         {
             AnsiConsole.MarkupLine("[bold]Enter your query or '/exit' or '/quit' to end. Press F1 for help.[/]\n");
@@ -562,10 +564,13 @@ internal class Program : Runtime
             {
                 break;
             }
-
-            if (string.IsNullOrWhiteSpace(input))
+            else if (string.IsNullOrWhiteSpace(input))
             {
                 continue;
+            }
+            else
+            {
+                editor.History.Add(input);
             }
             AgentResponse? _response = null; 
             await AnsiConsole.Status()
@@ -657,6 +662,6 @@ public sealed class Help : LineEditorCommand
 {
     public override void Execute(LineEditorContext context)
     {
-
+        
     }
 }

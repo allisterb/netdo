@@ -21,6 +21,11 @@ Prompts the user for a text input with the specified prompt string. Returns the 
 `select(title, choices)`
 Displays a selection prompt with a title and an array of choice strings. Returns the string selected by the user.
 
+`table(headers, dataRows)`
+Displays a formatted table in the console.
+- `headers`: An array of strings representing the table column headers.
+- `dataRows`: A 2D array of strings, where each inner array represents a row of data.
+
 ## Account
 
 `GetAccount()`
