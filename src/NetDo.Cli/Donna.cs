@@ -92,7 +92,7 @@ public class DonnaApi
     /// <param name="agentuuiid">UUID of agent</param>
     /// <param name="kbuuid">UUID of knowledge base</param>
     /// <returns></returns>
-    public ApiAgent? DetachKnowledgeBaseFromAgent(string agentuuiid, string kbuuid) =>
+    public void DetachKnowledgeBaseFromAgent(string agentuuiid, string kbuuid) =>
         Confirm(() => client.Genai_detach_knowledge_baseAsync(agentuuiid, kbuuid).GetAwaiter().GetResult().Agent, $"Detach the knowledge base {kbuuid} from agent {agentuuiid}");
     #endregion
 
