@@ -9,3 +9,16 @@ Clone the repository and run `build.cmd` or `./build` from the repository root. 
 ## Getting started
 * Set your DIGITALOCEAN_API_TOKEN environment variable to the token you want to use with netdo.
 * Run `netdo.cmd` or `./netdo` to see the available CLI commands. E.g to list all agents on the agent platfrom run `./netdo agents list`
+
+## Donna
+Donna requires an agent and knowledge base hosted on Gradient AI. You can use the netdo CLI to create a Donna agent using the prompt in docs/prompts.md:
+
+`./netdo agents --create --name donna1 --instructions @docs/prompts.md --model_uuid mymodeluuid --project_uuid myprojuuid --workspace_uuid myworkspaceuuid --region myregion`
+
+You can also use 
+
+Once you have the agent and kb, create an agent API key and set the GRADIENT_AGENT_API_KEY environment variable to the key value. Then you can run
+
+`./netdo donna --agentuuid <myagentuuid>`
+
+to start the Donna agent
