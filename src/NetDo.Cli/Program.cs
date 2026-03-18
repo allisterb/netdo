@@ -570,7 +570,14 @@ internal class Program : Runtime
             return;
         }
 
-        var agent = new Agent("37e2d5f9-183e-11f1-b074-4e013e2ddde4");
+        if (string.IsNullOrEmpty(options.Agentuuid))
+        {
+            AnsiConsole.WriteLine("[red] Specify the Donna agent UUID to connect to. ");
+            Environment.Exit(1);
+        }
+
+
+        var agent = new Agent(options.Agentuuid);
         var session = await agent.CreateSessionAsync();
         var editor = new LineEditor()
         {

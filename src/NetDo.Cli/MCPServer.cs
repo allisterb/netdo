@@ -1,20 +1,19 @@
 ﻿namespace DigitalOcean.Cli;
 
-using DigitalOcean.Api;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using ModelContextProtocol.Server;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 
+using DigitalOcean.Gradient;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using ModelContextProtocol.Server;
+
 [McpServerToolType]
 public static class DonnaMCPTools
-{    
-    
-    
+{            
     [McpServerTool, Description("Search the Donna API specification")]
     public static async Task<KBResults?> Search(string query)
     {

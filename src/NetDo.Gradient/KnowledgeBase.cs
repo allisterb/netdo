@@ -1,4 +1,4 @@
-﻿namespace DigitalOcean.Api;
+﻿namespace DigitalOcean.Gradient;
 
 using System;
 using System.Collections.Generic;

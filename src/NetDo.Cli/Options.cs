@@ -186,6 +186,9 @@ public class DonnaOptions : Options
     [Option("mcp", Required = false, HelpText = "Launch in MCP server mode.")]
     public bool Mcp { get; set; }
 
+    [Option("agentuuid", Required = false, HelpText = "The UUID of the knowledge base to use for the MCP server.")]
+    public string? Agentuuid { get; set; }
+
     [Option("kbuuid", Required = false, HelpText = "The UUID of the knowledge base to use for the MCP server.")]
     public string? Kbuuid { get; set; }
 }
