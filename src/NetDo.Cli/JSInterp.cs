@@ -59,6 +59,7 @@ public class JSInterp : Runtime
         var jsoptions = new Jint.Options();        
         jsoptions.Host.StringCompilationAllowed = false;
         var engine = new Engine(jsoptions)
+            
             .SetValue("log", JSInfo)
             .SetValue("error", JSError)
             .SetValue("confirm", Confirm)
@@ -78,7 +79,7 @@ public class JSInterp : Runtime
     public static void DrawTable(string[] headers, object[][] dataRows)
     {
         var table = new Table();
-        var headerStyle = new Style(foreground: Color.White, decoration: Decoration.Bold | Decoration.Underline);
+        var headerStyle = new Style(foreground: Color.Aqua, decoration: Decoration.Bold | Decoration.Underline);
         foreach (var header in headers)
         {
             table.AddColumn(new TableColumn(new Markup(header, headerStyle)).Alignment(Justify.Center));

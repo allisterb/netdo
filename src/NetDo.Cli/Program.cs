@@ -345,6 +345,19 @@ internal class Program : Runtime
                 Environment.Exit(1);
             }
 
+            if (options.Instructions.StartsWith("@"))
+            {
+                var f = options.Instructions.Remove(0);
+                if (File.Exists(f))
+                {
+                    options.Instructions = File.ReadAllText(f);
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: The file {f} was not found.[/]");
+                    Environment.Exit(1);
+                }
+            }
             var input = new ApiCreateAgentInputPublic(
                 anthropic_key_uuid: null,
                 description: options.Description,

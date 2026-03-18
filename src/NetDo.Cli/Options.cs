@@ -175,12 +175,7 @@ public class SpacesOptions : Options
     public bool ListBuckets { get; set; }
 }
 
-[Verb("query", HelpText = "Query how to perform an action using the doctl cli.")]
-public class QueryOptions : Options
-{
-    [Option("no-confirm", Required = false, HelpText = "Skip confirmation prompt.")]
-    public bool SkipConfirmation { get; set; }
-}
+
 
 [Verb("donna", HelpText = "Launch the Donna CLI agent.")]
 public class DonnaOptions : Options
