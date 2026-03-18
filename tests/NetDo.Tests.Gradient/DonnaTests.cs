@@ -17,7 +17,7 @@ public class DonnaTests : TestsRuntime
             log(a[0].Uuid);
             """;
         
-        JSInterp.Execute(js);
+        JSInterp.ConsoleExecute(js);
     }
 
     [Fact]

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -68,6 +69,19 @@ public class KnowledgeBaseClient
         _httpClient.BaseAddress = new Uri("https://kbaas.do-ai.run");
     }
 
+    public KnowledgeBaseClient(string apikey) : this(ConfigureHttpClient(apikey)) { }
+
+    public KnowledgeBaseClient() :
+        this(Environment.GetEnvironmentVariable("DIGITALOCEAN_API_TOKEN")
+            ?? throw new ArgumentNullException("The DIGITALOCEAN_API_TOKEN environment variable is not set."))
+    { }
+
+    protected static HttpClient ConfigureHttpClient(string apikey)
+    {
+        var httpClient = new HttpClient();
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apikey);
+        return httpClient;
+    }
     /// <summary>
     /// Retrieves relevant chunks using hybrid retrieval (lexical + semantic).
     /// </summary>

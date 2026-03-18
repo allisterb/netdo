@@ -551,12 +551,25 @@ internal class Program : Runtime
     {
         if (!string.IsNullOrWhiteSpace(options.Exec))
         {
-            JSInterp.Execute(File.ReadAllText(options.Exec));
+            JSInterp.ConsoleExecute(File.ReadAllText(options.Exec));
         }
     }
 
     static async Task HandleDonnaArgs(DonnaOptions options)
     {
+        if (options.Mcp)
+        {
+            if (string.IsNullOrEmpty(options.Kbuuid))
+            {
+                AnsiConsole.WriteLine("[red] Specify the Donna knowledge base UUID to connect to. ");
+                Environment.Exit(1);
+            }
+            AnsiConsole.MarkupLine("[green]Launching Donna in MCP server mode...[/]");
+            DonnaMCPTools._kbuuid = options.Kbuuid;
+            await DonnaMCPServer.Run();
+            return;
+        }
+
         var agent = new Agent("37e2d5f9-183e-11f1-b074-4e013e2ddde4");
         var session = await agent.CreateSessionAsync();
         var editor = new LineEditor()
@@ -617,7 +630,7 @@ internal class Program : Runtime
                     {
                         try
                         {
-                            JSInterp.Execute(code);
+                            JSInterp.ConsoleExecute(code);
                         }
                         catch (Jint.Runtime.JavaScriptException jse)
                         {
@@ -635,7 +648,6 @@ internal class Program : Runtime
             }
             AnsiConsole.WriteLine("");
         }
-                            
     }
     
 

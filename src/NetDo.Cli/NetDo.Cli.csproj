@@ -12,6 +12,8 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Jint" Version="4.6.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
+    <PackageReference Include="ModelContextProtocol" Version="1.1.0" />
     <PackageReference Include="NTokenizers.Extensions.Spectre.Console" Version="2.2.0" />
     <PackageReference Include="RadLine" Version="0.9.0" />
     <PackageReference Include="Spectre.Console" Version="0.54.0" />

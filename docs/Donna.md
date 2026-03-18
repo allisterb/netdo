@@ -241,6 +241,135 @@ The `ApiAgent` object includes all properties of `ApiAgentPublic` plus additiona
 }
 ```
 
+## Gradient AI Knowledge Base Management
+
+`ListKnowledgeBases()`
+List all knowledge bases. Returns an array of `ApiKnowledgeBase` objects.
+
+`GetKnowledgeBase(uuid)`
+Retrieve an existing knowledge base. Returns an `ApiKnowledgeBase` object.
+
+`DetachKnowledgeBaseFromAgent(agentuuiid, kbuuid)`
+Detach a knowledge base from an agent. Returns an `ApiAgent` object.
+
+### ApiKnowledgeBase Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "added_to_agent_at": { "type": "string", "format": "date-time", "description": "Time when the knowledge base was added to the agent" },
+    "created_at": { "type": "string", "format": "date-time", "description": "Creation date / time" },
+    "database_id": { "type": "string" },
+    "embedding_model_uuid": { "type": "string" },
+    "is_public": { "type": "boolean", "description": "Whether the knowledge base is public or not" },
+    "last_indexing_job": { "$ref": "#/definitions/ApiIndexingJob" },
+    "name": { "type": "string", "description": "Name of knowledge base" },
+    "project_id": { "type": "string" },
+    "region": { "type": "string", "description": "Region code" },
+    "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags to organize related resources" },
+    "updated_at": { "type": "string", "format": "date-time", "description": "Last modified" },
+    "user_id": { "type": "string", "description": "Id of user that created the knowledge base" },
+    "uuid": { "type": "string", "description": "Unique id for knowledge base" }
+  }
+}
+```
+
+### ApiIndexingJob Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "completed_datasources": { "type": "integer", "description": "Number of datasources indexed completed" },
+    "created_at": { "type": "string", "format": "date-time", "description": "Creation date / time" },
+    "data_source_jobs": { "type": "array", "items": { "$ref": "#/definitions/ApiIndexedDataSource" } },
+    "data_source_uuids": { "type": "array", "items": { "type": "string" } },
+    "finished_at": { "type": "string", "format": "date-time", "description": "Time when the job finished" },
+    "is_report_available": { "type": "boolean", "description": "Whether the report is available" },
+    "knowledge_base_uuid": { "type": "string", "description": "Unique id for knowledge base" },
+    "phase": { "$ref": "#/definitions/ApiBatchJobPhase" },
+    "started_at": { "type": "string", "format": "date-time", "description": "Time when the job started" },
+    "status": { "$ref": "#/definitions/ApiIndexJobStatus" },
+    "tokens": { "type": "integer", "description": "Total number of tokens consumed by the indexing job" },
+    "total_datasources": { "type": "integer", "description": "Number of datasources being indexed" },
+    "total_tokens": { "type": "string", "description": "Total Tokens Consumed By the Indexing Job" },
+    "updated_at": { "type": "string", "format": "date-time", "description": "Last modified" },
+    "uuid": { "type": "string", "description": "Unique id" }
+  }
+}
+```
+
+### ApiBatchJobPhase Enum Schema
+```json
+{
+  "type": "string",
+  "enum": [
+    "BATCH_JOB_PHASE_UNKNOWN",
+    "BATCH_JOB_PHASE_PENDING",
+    "BATCH_JOB_PHASE_RUNNING",
+    "BATCH_JOB_PHASE_SUCCEEDED",
+    "BATCH_JOB_PHASE_FAILED",
+    "BATCH_JOB_PHASE_ERROR",
+    "BATCH_JOB_PHASE_CANCELLED"
+  ]
+}
+```
+
+### ApiIndexJobStatus Enum Schema
+```json
+{
+  "type": "string",
+  "enum": [
+    "INDEX_JOB_STATUS_UNKNOWN",
+    "INDEX_JOB_STATUS_PARTIAL",
+    "INDEX_JOB_STATUS_IN_PROGRESS",
+    "INDEX_JOB_STATUS_COMPLETED",
+    "INDEX_JOB_STATUS_FAILED",
+    "INDEX_JOB_STATUS_NO_CHANGES",
+    "INDEX_JOB_STATUS_PENDING",
+    "INDEX_JOB_STATUS_CANCELLED"
+  ]
+}
+```
+
+### ApiIndexedDataSource Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "completed_at": { "type": "string", "format": "date-time", "description": "Timestamp when data source completed indexing" },
+    "data_source_uuid": { "type": "string", "description": "Uuid of the indexed data source" },
+    "error_details": { "type": "string", "description": "A detailed error description" },
+    "error_msg": { "type": "string", "description": "A detailed error message" },
+    "failed_item_count": { "type": "string", "description": "Number of items failed to index" },
+    "indexed_file_count": { "type": "string", "description": "Number of files indexed" },
+    "indexed_item_count": { "type": "string", "description": "Number of items indexed" },
+    "removed_item_count": { "type": "string", "description": "Number of items removed" },
+    "skipped_item_count": { "type": "string", "description": "Number of items skipped" },
+    "started_at": { "type": "string", "format": "date-time", "description": "Timestamp when data source started indexing" },
+    "status": { "$ref": "#/definitions/ApiIndexedDataSourceStatus" },
+    "total_bytes": { "type": "string", "description": "Total bytes to be indexed" },
+    "total_bytes_indexed": { "type": "string", "description": "Total bytes indexed" },
+    "total_file_count": { "type": "string", "description": "Total number of files to be indexed" }
+  }
+}
+```
+
+### ApiIndexedDataSourceStatus Enum Schema
+```json
+{
+  "type": "string",
+  "enum": [
+    "DATA_SOURCE_STATUS_UNKNOWN",
+    "DATA_SOURCE_STATUS_IN_PROGRESS",
+    "DATA_SOURCE_STATUS_UPDATED",
+    "DATA_SOURCE_STATUS_PARTIALLY_UPDATED",
+    "DATA_SOURCE_STATUS_NOT_UPDATED",
+    "DATA_SOURCE_STATUS_FAILED",
+    "DATA_SOURCE_STATUS_CANCELLED"
+  ]
+}
+```
+
 ## Apps
 
 `ListApps()`

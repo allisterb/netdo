@@ -182,6 +182,12 @@ public class DonnaOptions : Options
 {
     [Option("confirm", Required = false, HelpText = "Require confirmation for operations which modify configuration values.")]
     public bool RequireConfirmation { get; set; }
+
+    [Option("mcp", Required = false, HelpText = "Launch in MCP server mode.")]
+    public bool Mcp { get; set; }
+
+    [Option("kbuuid", Required = false, HelpText = "The UUID of the knowledge base to use for the MCP server.")]
+    public string? Kbuuid { get; set; }
 }
 
 [Verb("test", HelpText = "Test different CLI commands and options.")]

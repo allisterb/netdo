@@ -151,7 +151,7 @@ public class DonnaApi
     #region General
     protected static void Confirm(System.Action method, string message)
     {
-        if (JSInterp.Confirm("[red] Warning! This operation can potentially cause data loss. Confirm the following operation:[/] " + message))
+        if (JSInterp.ConsoleConfirm("[red] Warning! This operation can potentially cause data loss. Confirm the following operation:[/] " + message))
         {
             method.Invoke();
             AnsiConsole.WriteLine("Operation complete.");
@@ -160,7 +160,7 @@ public class DonnaApi
 
     protected static T? Confirm<T>(Func<T> method, string message)
     {
-        if (JSInterp.Confirm("[red] Warning! This operation can potentially cause data loss. Confirm the following operation:[/] " + message))
+        if (JSInterp.ConsoleConfirm("[red] Warning! This operation can potentially cause data loss. Confirm the following operation:[/] " + message))
         {
             return method.Invoke();
         }
