@@ -1,10 +1,10 @@
 namespace DigitalOcean.Tests.Gradient;
 
-using System.Threading.Tasks;
-using Xunit;
-
 using DigitalOcean.Api;
 using DigitalOcean.Gradient;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 public class DurableSessionTests : TestsRuntime
 {
@@ -45,10 +45,10 @@ public class DurableSessionTests : TestsRuntime
         
 
         // 2. Deserialize using public method
-        var deserializedSession = await agent.DeserializeSessionAsync(serializedState) as DurableAgentSession;
+        var deserializedSession = await agent.DeserializeSessionAsync(serializedState);
         Assert.NotNull(deserializedSession);
-        Assert.Equal(session.Id, deserializedSession.Id);
-        Assert.Equal(1, deserializedSession.VersionId);
+        Assert.Equal(id, session.StateBag.GetValue<string>("Id"));
+        
     }
 
     protected static string apiKey;

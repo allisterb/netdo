@@ -67,10 +67,11 @@ public class Agent : AIAgent
         this.spacesClient = new SpacesClient(endpoint, accessKey, secretKey);
     }
     
-    public static async Task<Agent?> CreateAsync(string name, string instructions, string model_uud, string kb_uuid, string project_uuid, string region, string workspace_uuid)
+    public static async Task<Agent?> CreateAsync(string name, string instructions, string model_uud, string project_uuid, string region, string workspace_uuid, string? kb_uuid = null)
     {
         var client = new DigitalOceanClient();
-        var r = await client.Genai_create_agentAsync(new ApiCreateAgentInputPublic(null, null, instructions, [kb_uuid], null, model_uud, name, null, project_uuid, region, null, workspace_uuid));
+        string[]? kbs = kb_uuid == null ? null : [kb_uuid];
+        var r = await client.Genai_create_agentAsync(new ApiCreateAgentInputPublic(null, null, instructions, kbs, null, model_uud, name, null, project_uuid, region, null, workspace_uuid));
         if (r.Agent is not null)
         {
             return new Agent(r.Agent.Uuid!);

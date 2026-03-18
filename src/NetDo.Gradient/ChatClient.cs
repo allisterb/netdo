@@ -11,13 +11,13 @@ using DigitalOcean.Api;
 public class ChatClient : DelegatingChatClient
 {
     #region Constructors
-    private ChatClient(ApiAgent apiAgent, params AIFunction[] tools) : base(GetOpenAIChatClient(apiAgent, tools))
+    private ChatClient(ApiAgent apiAgent, string? apikey=null) : base(GetOpenAIChatClient(apiAgent, apikey))
     {
         this.client = new DigitalOceanClient();
         this.apiAgent = apiAgent;        
     }
 
-    public ChatClient(string uuid, params AIFunction[] tools) : this(GetApiAgent(uuid), tools) {}
+    public ChatClient(string uuid, string? apikey=null) : this(GetApiAgent(uuid), apikey) {}
     #endregion
 
     #region Properties
@@ -50,13 +50,13 @@ public class ChatClient : DelegatingChatClient
         }
     }
 
-    public static IChatClient GetOpenAIChatClient(ApiAgent agent, params AIFunction[] tools)
+    public static IChatClient GetOpenAIChatClient(ApiAgent agent, string? apikey=null)
     {
         var endpoint = agent.Deployment?.Url ?? throw new ArgumentNullException($"The agent {agent.Uuid} ({agent.Name}) deployment field or deployment url is null.");
-        var apikey = Environment.GetEnvironmentVariable("GRADIENT_AGENT_API_TOKEN") ?? throw new ArgumentNullException("The GRADIENT_AGENT_API_TOKEN environment variable is not set.");
+        var _apikey = apikey ?? Environment.GetEnvironmentVariable("GRADIENT_AGENT_API_TOKEN") ?? throw new ArgumentException("The apikey parameter is not set and the GRADIENT_AGENT_API_TOKEN environment variable is not set.");
        
         return 
-            new OpenAIClient(new System.ClientModel.ApiKeyCredential(apikey), new OpenAIClientOptions() 
+            new OpenAIClient(new System.ClientModel.ApiKeyCredential(_apikey), new OpenAIClientOptions() 
             { 
                 Endpoint = new Uri(endpoint + "/api/v1"),
                 ClientLoggingOptions = new System.ClientModel.Primitives.ClientLoggingOptions() 
